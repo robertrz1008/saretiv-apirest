@@ -1,7 +1,9 @@
 package my.project.security;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import my.project.dao.auth.AuthResponse;
 import my.project.dao.auth.LoginRequest;
 import my.project.dao.auth.RegisterRequest;
@@ -9,6 +11,7 @@ import my.project.entities.abm.Role;
 import my.project.entities.abm.UserEntity;
 import my.project.repository.RoleRepository;
 import my.project.repository.UserRepository;
+import my.project.security.cookie.CookieUtil;
 import my.project.security.jwt.JWTConfig;
 import my.project.utils.Log;
 import my.project.utils.exceptions.CustomAuthenticationException;
@@ -118,7 +121,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return authResponse;
     }
 
-    public ResponseEntity<AuthResponse> login(LoginRequest loginRequest){
+    public ResponseEntity<AuthResponse> login(LoginRequest loginRequest, HttpServletResponse response){
         log.info("Usuario iniciando session");
         AuthResponse authResponse;
         try {
@@ -129,8 +132,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
             String accessToken;
             SecurityContextHolder.getContext().setAuthentication(authentication);
             accessToken = jwtUtils.createToken(authentication);
+            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, 3600);
 
             authResponse = new AuthResponse(loginRequest.username(), "Welcome to this web service!", accessToken, true);
+            log.info("el usuario: "+loginRequest.username()+" ha iniciado session");
             return new ResponseEntity<>(authResponse, HttpStatus.OK);
 
         }catch (CustomAuthenticationException e){
@@ -140,8 +145,10 @@ public class UserDetailServiceImpl implements UserDetailsService {
         }
     }
 
-    public ResponseEntity<Optional<UserEntity>> verifyProfile(HttpServletRequest request){
-        String token = jwtUtils.getJwtFromHeader(request);
+    public ResponseEntity<Optional<UserEntity>> verifyProfile(HttpServletRequest request) throws RuntimeException{
+        Cookie jwtCookie = CookieUtil.getCookie(request, "JWT_TOKEN");
+
+        String token = jwtCookie.getValue();
 
         DecodedJWT decodedJWT = jwtUtils.validateToken(token);
         String username = jwtUtils.extractStringUserName(decodedJWT);
@@ -150,6 +157,17 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 
         return new ResponseEntity<>(userMatch, HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<String> logOut(HttpServletResponse response){
+        try {
+            CookieUtil.deleteCookie(response, "JWT_TOKEN");
+            return new ResponseEntity<>("cookie deleted", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("cookie deleted", HttpStatus.OK);
+        }
+
 
     }
 }

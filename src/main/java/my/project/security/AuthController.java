@@ -1,6 +1,8 @@
 package my.project.security;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import my.project.dao.auth.AuthResponse;
 import my.project.dao.auth.LoginRequest;
 import my.project.dao.auth.RegisterRequest;
@@ -44,13 +46,18 @@ public class AuthController {
     }
 
     @PostMapping("/logIn")
-    public ResponseEntity<AuthResponse> logIn(@RequestBody LoginRequest user){
-        return userDetailService.login(user);
+    public ResponseEntity<AuthResponse> logIn(@RequestBody @Valid LoginRequest user, HttpServletResponse response){
+        return userDetailService.login(user, response);
     }
 
     @GetMapping("/profile")
     public ResponseEntity<Optional<UserEntity>> profile(HttpServletRequest request){
         return userDetailService.verifyProfile(request);
+    }
+
+    @PostMapping("/logOut")
+    public ResponseEntity<String> logOut(HttpServletResponse response){
+        return userDetailService.logOut(response);
     }
 
 }

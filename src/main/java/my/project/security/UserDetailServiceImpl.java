@@ -135,7 +135,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         }catch (CustomAuthenticationException e){
 
-            authResponse = new AuthResponse(loginRequest.username(), "Welcome to this web service!", null, true);
+            authResponse = new AuthResponse(null, "username or password incorrect", null, false);
             return new ResponseEntity<>(authResponse, HttpStatus.UNAUTHORIZED);
         }
     }

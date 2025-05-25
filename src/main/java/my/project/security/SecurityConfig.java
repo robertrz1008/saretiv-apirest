@@ -1,5 +1,8 @@
 package my.project.security;
 
+import my.project.security.jwt.JWTConfig;
+import my.project.security.jwt.JWTValidatorFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,10 +17,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private JWTConfig jwtConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -27,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(new JWTValidatorFilter(jwtConfig), BasicAuthenticationFilter.class)
                 .sessionManagement(session -> {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 });

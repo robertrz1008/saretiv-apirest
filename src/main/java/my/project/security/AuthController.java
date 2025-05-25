@@ -1,5 +1,6 @@
 package my.project.security;
 
+import jakarta.servlet.http.HttpServletRequest;
 import my.project.dao.auth.AuthResponse;
 import my.project.dao.auth.LoginRequest;
 import my.project.dao.auth.RegisterRequest;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,6 +46,11 @@ public class AuthController {
     @PostMapping("/logIn")
     public ResponseEntity<AuthResponse> logIn(@RequestBody LoginRequest user){
         return userDetailService.login(user);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<Optional<UserEntity>> profile(HttpServletRequest request){
+        return userDetailService.verifyProfile(request);
     }
 
 }

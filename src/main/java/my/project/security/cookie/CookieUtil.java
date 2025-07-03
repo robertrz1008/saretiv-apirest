@@ -16,8 +16,11 @@ public class CookieUtil {
         cookie.setMaxAge(expiry);  // Tiempo de vida de la cookie
         cookie.setPath("/");       // Elige el path para la cookie
         cookie.setSecure(true);    // Asegúrate de que sea transmitida solo por HTTPS en producción
+        String cookieHeader = String.format("%s=%s; Path=%s; HttpOnly; SameSite=Lax; Max-Age=%s;",name, value, "/", expiry);
+        response.addHeader("Set-Cookie", cookieHeader);
+//        response.addCookie(cookie);
 
-        response.addCookie(cookie);
+
     }
     public static void deleteCookie(HttpServletResponse response, String name) {
         Cookie cookie = new Cookie(name, null);

@@ -16,6 +16,7 @@ import my.project.security.jwt.JWTConfig;
 import my.project.utils.Log;
 import my.project.utils.exceptions.CustomAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -82,7 +83,102 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
     }
 
-    public AuthResponse register(RegisterRequest userRequest){
+
+
+    public ResponseEntity<AuthResponse> login(LoginRequest loginRequest, HttpServletResponse response){
+        log.info("Usuario iniciando session");
+        AuthResponse authResponse;
+        try {
+            Authentication authentication = this.authenticate(
+                    loginRequest.username(),
+                    loginRequest.password()
+            );
+            String accessToken;
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            accessToken = jwtUtils.createToken(authentication);
+            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, 3600);
+
+            authResponse = new AuthResponse(loginRequest.username(), "Welcome to this web service!", accessToken, true);
+            log.info("el usuario: "+loginRequest.username()+" ha iniciado session");
+            return new ResponseEntity<>(authResponse, HttpStatus.OK);
+
+        }catch (CustomAuthenticationException e){
+
+            authResponse = new AuthResponse(null, "Nombre de usuario o contraseña incorrecta", null, false);
+            return new ResponseEntity<>(authResponse, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    public ResponseEntity<Optional<UserEntity>> verifyProfile(HttpServletRequest request) throws RuntimeException{
+        Cookie jwtCookie = CookieUtil.getCookie(request, "JWT_TOKEN");
+
+        String token = jwtCookie.getValue();
+
+        DecodedJWT decodedJWT = jwtUtils.validateToken(token);
+        String username = jwtUtils.extractStringUserName(decodedJWT);
+
+        Optional<UserEntity> userMatch = userRepository.findUserByUsername(username);
+
+
+        return new ResponseEntity<>(userMatch, HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<String> logOut(HttpServletResponse response){
+        try {
+            CookieUtil.deleteCookie(response, "JWT_TOKEN");
+            return new ResponseEntity<>("cookie deleted", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("cookie did not delete", HttpStatus.OK);
+        }
+
+    }
+
+
+//  crud
+
+    public ResponseEntity<List<UserEntity>> usersList(){
+        List<UserEntity> usersFound = userRepository.findAll();
+
+        List<UserEntity> usersOrdered = usersFound.stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(usersOrdered, HttpStatus.OK);
+    }
+
+    public ResponseEntity<UserEntity> updateUser(int id, RegisterRequest user){
+        UserEntity userFound = userRepository.findByDocument(user.document())
+                .orElseThrow( () -> new RuntimeException("User not found"));
+
+        String name = user.name();
+        String lasname = user.lastname();
+        String telephone = user.telephone();
+        String document = user.document();
+        String username = user.username();
+        String password = user.password();
+        Date entryDate = user.entryDate();
+        boolean status = user.status();
+        List<String> roleListName = user.roleRequest().roleListName();
+
+//        Set<Role> roleSet = roleRepository.findRoleEntityByNameIn(roleListName).stream()
+//                .collect(Collectors.toSet());
+//
+//        if(roleSet.isEmpty()){
+//            throw new IllegalArgumentException("The role especified does not exit");
+//        }
+
+        userFound.setName(name);
+        userFound.setLastname(lasname);
+        userFound.setTelephone(telephone);
+        userFound.setUsername(username);
+        userFound.setDocument(document);
+        userFound.setEntryDate(entryDate);
+
+
+        return new ResponseEntity<>(userRepository.save(userFound), HttpStatus.OK);
+    }
+
+    public ResponseEntity<AuthResponse>  register(RegisterRequest userRequest){
         String name = userRequest.name();
         String lasname = userRequest.lastname();
         String telephone = userRequest.telephone();
@@ -110,64 +206,42 @@ public class UserDetailServiceImpl implements UserDetailsService {
                 .status(status)
                 .roles(roleSet)
                 .build();
-        UserEntity userEntity = userRepository.save(userSave);
-
-        List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        userEntity.getRoles().forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(userEntity.getUsername(), userEntity.getPassword(), authorityList);
-        String accessToken = jwtUtils.createToken(auth);
-        AuthResponse authResponse = new AuthResponse(userEntity.getUsername(), "user registered", accessToken, true);
-        return authResponse;
-    }
-
-    public ResponseEntity<AuthResponse> login(LoginRequest loginRequest, HttpServletResponse response){
-        log.info("Usuario iniciando session");
-        AuthResponse authResponse;
+        UserEntity userEntity;
         try {
-            Authentication authentication = this.authenticate(
-                    loginRequest.username(),
-                    loginRequest.password()
-            );
-            String accessToken;
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            accessToken = jwtUtils.createToken(authentication);
-            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, 3600);
+            userEntity = userRepository.save(userSave);
 
-            authResponse = new AuthResponse(loginRequest.username(), "Welcome to this web service!", accessToken, true);
-            log.info("el usuario: "+loginRequest.username()+" ha iniciado session");
-            return new ResponseEntity<>(authResponse, HttpStatus.OK);
+            List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
+            userEntity.getRoles().forEach(role -> authorityList.add(new SimpleGrantedAuthority("ROLE_".concat(role.getName()))));
 
-        }catch (CustomAuthenticationException e){
-
-            authResponse = new AuthResponse(null, "username or password incorrect", null, false);
-            return new ResponseEntity<>(authResponse, HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    public ResponseEntity<Optional<UserEntity>> verifyProfile(HttpServletRequest request) throws RuntimeException{
-        Cookie jwtCookie = CookieUtil.getCookie(request, "JWT_TOKEN");
-
-        String token = jwtCookie.getValue();
-
-        DecodedJWT decodedJWT = jwtUtils.validateToken(token);
-        String username = jwtUtils.extractStringUserName(decodedJWT);
-
-        Optional<UserEntity> userMatch = userRepository.findUserByUsername(username);
-
-
-        return new ResponseEntity<>(userMatch, HttpStatus.OK);
-
-    }
-
-    public ResponseEntity<String> logOut(HttpServletResponse response){
-        try {
-            CookieUtil.deleteCookie(response, "JWT_TOKEN");
-            return new ResponseEntity<>("cookie deleted", HttpStatus.OK);
+            Authentication auth = new UsernamePasswordAuthenticationToken(userEntity.getUsername(), userEntity.getPassword(), authorityList);
+            String accessToken = jwtUtils.createToken(auth);
+            AuthResponse authResponse = new AuthResponse(userEntity.getUsername(), "user registered", accessToken, true);
+            return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<>("cookie deleted", HttpStatus.OK);
+            AuthResponse authResponse = new AuthResponse(null, "user did not register", null, true);
+            return new ResponseEntity<>(authResponse, HttpStatus.BAD_REQUEST);
         }
-
-
     }
+
+    public ResponseEntity<?> deleteUserRoleByUser(int id){
+        try {
+            userRepository.deleteUserRolByUser(id);
+            return new ResponseEntity<>(null, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResponseEntity<String> deleteUser(int id){
+        UserEntity userFound = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User Not Found"));
+        try {
+            userRepository.delete(userFound);
+
+            return new ResponseEntity<>("User deleted", HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

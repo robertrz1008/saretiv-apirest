@@ -32,7 +32,6 @@ public class JWTValidatorFromCookieFilter extends OncePerRequestFilter{
         Cookie jwtCookie = CookieUtil.getCookie(request, "JWT_TOKEN");
 
 
-
         if (jwtCookie != null){
             String token = jwtCookie.getValue();
             //token = token.substring(7);

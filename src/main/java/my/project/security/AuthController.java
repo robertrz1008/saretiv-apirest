@@ -6,16 +6,19 @@ import jakarta.validation.Valid;
 import my.project.dao.auth.AuthResponse;
 import my.project.dao.auth.LoginRequest;
 import my.project.dao.auth.RegisterRequest;
+import my.project.dao.auth.entityManager.UserRole;
 import my.project.entities.abm.UserEntity;
+import my.project.repository.CustomerRepository;
 import my.project.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +32,8 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    CustomerRepository customerRepository = new CustomerRepository();
+
     public AuthController(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
@@ -41,8 +46,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest user){
-        AuthResponse response = userDetailService.register(user);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        ResponseEntity<AuthResponse> response = userDetailService.register(user);
+        return response;
     }
 
     @PostMapping("/logIn")
@@ -55,9 +60,27 @@ public class AuthController {
         return userDetailService.verifyProfile(request);
     }
 
+    @PutMapping("/updateUser/{id}")
+    public ResponseEntity<UserEntity> updateUser(@PathVariable int id, @RequestBody @Valid RegisterRequest user){
+        return userDetailService.updateUser(id, user);
+    }
+
     @PostMapping("/logOut")
     public ResponseEntity<String> logOut(HttpServletResponse response){
         return userDetailService.logOut(response);
+    }
+    @GetMapping("/users/list")
+    public ResponseEntity<List<UserEntity>> UsersList(){
+        return userDetailService.usersList();
+    }
+    @DeleteMapping("/userrole/{id}")
+    public ResponseEntity<?> deleteUserRoleByUser(@PathVariable int id){
+        return userDetailService.deleteUserRoleByUser(id);
+    }
+
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<String> delete(@PathVariable int id){
+        return userDetailService.deleteUser(id);
     }
 
 }

@@ -13,13 +13,19 @@ import my.project.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +38,6 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    CustomerRepository customerRepository = new CustomerRepository();
 
     public AuthController(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
@@ -60,9 +65,9 @@ public class AuthController {
         return userDetailService.verifyProfile(request);
     }
 
-    @PutMapping("/updateUser/{id}")
-    public ResponseEntity<UserEntity> updateUser(@PathVariable int id, @RequestBody @Valid RegisterRequest user){
-        return userDetailService.updateUser(id, user);
+    @PutMapping("/updateUser/{doc}")
+    public ResponseEntity<UserEntity> updateUser(@PathVariable("doc") String doc, @RequestBody @Valid RegisterRequest user){
+        return userDetailService.updateUser(doc, user);
     }
 
     @PostMapping("/logOut")
@@ -81,6 +86,12 @@ public class AuthController {
     @DeleteMapping("/user/{id}")
     public ResponseEntity<String> delete(@PathVariable int id){
         return userDetailService.deleteUser(id);
+    }
+    @GetMapping("/filter/{filter}")
+    public ResponseEntity<List<UserEntity>> findByFilter(@PathVariable String filter){
+        List<UserEntity> list = userRepository.findByFilter(filter);
+
+        return ResponseEntity.ok(list);
     }
 
 }

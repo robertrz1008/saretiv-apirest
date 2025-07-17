@@ -96,7 +96,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
             String accessToken;
             SecurityContextHolder.getContext().setAuthentication(authentication);
             accessToken = jwtUtils.createToken(authentication);
-            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, 3600);
+            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, (3600*24));
 
             authResponse = new AuthResponse(loginRequest.username(), "Welcome to this web service!", accessToken, true);
             log.info("el usuario: "+loginRequest.username()+" ha iniciado session");
@@ -146,8 +146,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new ResponseEntity<>(usersOrdered, HttpStatus.OK);
     }
 
-    public ResponseEntity<UserEntity> updateUser(int id, RegisterRequest user){
-        UserEntity userFound = userRepository.findByDocument(user.document())
+    public ResponseEntity<UserEntity> updateUser(String doc, RegisterRequest user){
+        UserEntity userFound = userRepository.findByDocument(doc)
                 .orElseThrow( () -> new RuntimeException("User not found"));
 
         String name = user.name();

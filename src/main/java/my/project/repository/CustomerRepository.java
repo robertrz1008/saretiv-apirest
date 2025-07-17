@@ -3,19 +3,25 @@ package my.project.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import my.project.dao.auth.entityManager.UserRole;
+import my.project.entities.abm.Customer;
+import my.project.entities.abm.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
-public class CustomerRepository {
+public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
-    @Autowired
-    @PersistenceContext
-    private EntityManager entityManager;
+    Optional<Customer> findByDocument(String document);
 
-    public List<UserRole> list(){
-        String query = "SELECT ur FROM user_role ur";
-        List<UserRole> ur = entityManager.createQuery(query).getResultList();
-        return ur;
-    }
+    @Query(value = """
+    SELECT * 
+    FROM customers 
+    WHERE name ILIKE CONCAT('%', :filter, '%')
+       OR document ILIKE CONCAT('%', :filter, '%')
+    """, nativeQuery = true)
+    List<Customer> findByFilter(@Param("filter") String filter);
 }

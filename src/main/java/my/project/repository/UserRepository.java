@@ -19,11 +19,16 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     Optional<UserEntity> findUserByUsername(String username);
 
-    @Query(
-            value = "SELECT * FROM user_role WHERE user_id = :usuarioId",
-            nativeQuery = true
-    )
+    @Query(value = "SELECT * FROM user_role WHERE user_id = :usuarioId",nativeQuery = true)
     List<Map<String, Object>> obtenerRolesDeUsuario(@Param("usuarioId") int usuarioId);
+
+    @Query(value = """
+    SELECT * 
+    FROM users 
+    WHERE name ILIKE CONCAT('%', :filter, '%') 
+       OR document ILIKE CONCAT('%', :filter, '%')
+    """, nativeQuery = true)
+    List<UserEntity> findByFilter(@Param("filter") String filter);
 
     @Modifying
     @Transactional

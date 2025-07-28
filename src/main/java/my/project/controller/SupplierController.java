@@ -1,6 +1,8 @@
 package my.project.controller;
 
+import my.project.entities.abm.Product;
 import my.project.entities.abm.Supplier;
+import my.project.repository.ProductRepository;
 import my.project.services.Interface.InAbmService;
 import my.project.services.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,11 @@ public class SupplierController implements InAbmService<Supplier, Integer> {
         return supplierService.findAll();
     }
 
+    @GetMapping("/filter/{fil}")
+    public ResponseEntity<List<Supplier>> findByFilter(@PathVariable("fil") String filter) {
+        return supplierService.findByFilter(filter);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Supplier> update(@PathVariable Integer id, @RequestBody Supplier entity) {
         return supplierService.update(id, entity);
@@ -33,6 +40,9 @@ public class SupplierController implements InAbmService<Supplier, Integer> {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
+
+
         return supplierService.delete(id);
     }
+
 }

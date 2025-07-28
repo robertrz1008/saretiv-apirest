@@ -50,8 +50,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest user){
-        ResponseEntity<AuthResponse> response = userDetailService.register(user);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest user){
+        ResponseEntity<?> response = userDetailService.register(user);
         return response;
     }
 

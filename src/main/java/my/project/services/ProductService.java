@@ -1,6 +1,7 @@
 package my.project.services;
 
 import my.project.entities.abm.CategoryProduct;
+import my.project.entities.abm.Customer;
 import my.project.entities.abm.Product;
 import my.project.repository.ProductRepository;
 import my.project.services.Interface.InAbmService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
@@ -42,7 +44,7 @@ public class ProductService implements InAbmService<Product, Integer> {
         productFound.setSalePrice(entity.getSalePrice());
         productFound.setBarcode(entity.getBarcode());
 
-        return ResponseEntity.ok(productRepository.save(entity));
+        return ResponseEntity.ok(productRepository.save(productFound));
     }
 
     @Override
@@ -53,4 +55,12 @@ public class ProductService implements InAbmService<Product, Integer> {
         productRepository.delete(productFound);
         return ResponseEntity.ok("deleted");
     }
+
+    public ResponseEntity<List<Product>> findByFilter(@PathVariable String filter){
+        List<Product> list = productRepository.findByFilter(filter);
+
+        return ResponseEntity.ok(list);
+    }
+
+
 }

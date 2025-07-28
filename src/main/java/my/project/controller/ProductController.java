@@ -1,6 +1,7 @@
 package my.project.controller;
 
 import my.project.entities.abm.Product;
+import my.project.repository.ProductRepository;
 import my.project.services.Interface.InAbmService;
 import my.project.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,8 @@ public class ProductController implements InAbmService<Product, Integer> {
 
     @Autowired
     private ProductService productService;
-
+    @Autowired
+    private ProductRepository productRepository;
 
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product entity) {
@@ -25,6 +27,10 @@ public class ProductController implements InAbmService<Product, Integer> {
     @GetMapping
     public ResponseEntity<List<Product>> findAll() {
         return productService.findAll();
+    }
+    @GetMapping("/filter/{str}")
+    public ResponseEntity<List<Product>> findByFIlter(@PathVariable("str") String filter) {
+        return productService.findByFilter(filter);
     }
 
     @PutMapping("/{id}")
@@ -36,4 +42,6 @@ public class ProductController implements InAbmService<Product, Integer> {
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return productService.delete(id);
     }
+
+
 }

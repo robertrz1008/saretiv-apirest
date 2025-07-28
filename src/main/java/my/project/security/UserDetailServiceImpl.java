@@ -178,7 +178,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new ResponseEntity<>(userRepository.save(userFound), HttpStatus.OK);
     }
 
-    public ResponseEntity<AuthResponse>  register(RegisterRequest userRequest){
+    public ResponseEntity<?>  register(RegisterRequest userRequest){
         String name = userRequest.name();
         String lasname = userRequest.lastname();
         String telephone = userRequest.telephone();
@@ -188,6 +188,18 @@ public class UserDetailServiceImpl implements UserDetailsService {
         Date entryDate = userRequest.entryDate();
         boolean status = userRequest.status();
         List<String> roleListName = userRequest.roleRequest().roleListName();
+
+        if(userRepository.findUserByUsername(username).isPresent()){
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Nombre de usurio ya registrado"));
+        }
+
+        if(userRepository.findByDocument(document).isPresent()){
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "El documento ya esta registrado"));
+        }
 
         Set<Role> roleSet = roleRepository.findRoleEntityByNameIn(roleListName).stream()
                 .collect(Collectors.toSet());

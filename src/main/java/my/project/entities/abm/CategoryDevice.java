@@ -2,12 +2,17 @@ package my.project.entities.abm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import my.project.entities.transaction.Device;
+
+
+
+import my.project.entities.transaction.TypeSupport;
 
 import java.util.List;
 
 @Entity
-@Table(name = "categories_product")
-public class CategoryProduct {
+@Table(name = "categories_device")
+public class CategoryDevice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -16,13 +21,15 @@ public class CategoryProduct {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Product> products;
+    private List<TypeSupport> typeSupports;
 
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Device> devices;
 
-    public CategoryProduct(String name) {
+    public CategoryDevice(String name) {
         this.name = name;
     }
-    public CategoryProduct(){}
 
     public String getName() {
         return name;
@@ -32,12 +39,5 @@ public class CategoryProduct {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public CategoryProduct(List<Product> products, String name) {
-        this.products = products;
-        this.name = name;
-    }
 }

@@ -1,12 +1,16 @@
 package my.project.entities.abm;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import my.project.entities.transaction.ProductDetail;
+
+import java.util.List;
 
 @Entity
 @Table(name = "products")
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @Column(nullable = false)
     private String description;
@@ -25,6 +29,10 @@ public class Product {
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private CategoryProduct category;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ProductDetail> productDetails;
+
     public Product(int id, String description, double entryPrice, double salePrice, int stock, Supplier supplier, CategoryProduct category, String barcode) {
         this.id = id;
         this.description = description;
@@ -35,6 +43,8 @@ public class Product {
         this.category = category;
         this.barcode = barcode;
     }
+
+    public Product(){}
 
     public int getId() {
         return id;

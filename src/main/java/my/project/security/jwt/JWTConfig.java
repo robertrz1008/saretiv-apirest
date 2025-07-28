@@ -33,7 +33,7 @@ public class JWTConfig {
                 .withSubject(username)
                 .withClaim("authorities", authorities)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 1800000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + (1800000*24)))
                 .withJWTId(UUID.randomUUID().toString())
                 .withNotBefore(new Date())
                 .sign(algorithm);

@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/sale")
@@ -27,7 +30,10 @@ public class SaleController {
     }
     @GetMapping("/proDetail")
     public ResponseEntity<List<ProductDetail>> findProDetial(){
-        return ResponseEntity.ok(productDetailRepository.findAll());
+        List<ProductDetail> productDetails = productDetailRepository.findAll().stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(productDetails);
     }
 
     @PostMapping

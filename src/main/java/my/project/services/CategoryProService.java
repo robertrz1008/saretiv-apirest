@@ -10,7 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryProService implements InAbmService<CategoryProduct, Integer> {
@@ -27,7 +29,10 @@ public class CategoryProService implements InAbmService<CategoryProduct, Integer
 
     @Override
     public ResponseEntity<List<CategoryProduct>> findAll() {
-        return ResponseEntity.ok(categoryRepository.findAll());
+        List<CategoryProduct> categories = categoryRepository.findAll().stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(categories);
     }
 
     @Override

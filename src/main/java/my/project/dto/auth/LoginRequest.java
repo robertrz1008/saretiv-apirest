@@ -1,4 +1,4 @@
-package my.project.dao.auth;
+package my.project.dto.auth;
 
 import org.springframework.lang.NonNull;
 

@@ -1,8 +1,8 @@
-package my.project.dao.auth;
+package my.project.dto.auth;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import my.project.dao.AuthCreateRoleRequest;
+import my.project.dto.AuthCreateRoleRequest;
 
 import java.util.Date;
 

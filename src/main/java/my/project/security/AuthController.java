@@ -3,29 +3,20 @@ package my.project.security;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import my.project.dao.auth.AuthResponse;
-import my.project.dao.auth.LoginRequest;
-import my.project.dao.auth.RegisterRequest;
-import my.project.dao.auth.entityManager.UserRole;
+import my.project.dto.auth.AuthResponse;
+import my.project.dto.auth.LoginRequest;
+import my.project.dto.auth.RegisterRequest;
 import my.project.entities.abm.UserEntity;
-import my.project.repository.CustomerRepository;
 import my.project.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -92,6 +83,13 @@ public class AuthController {
         List<UserEntity> list = userRepository.findByFilter(filter);
 
         return ResponseEntity.ok(list);
+    }
+
+    @PutMapping("/password/{id}/{pass}")
+    public ResponseEntity<?> modifyPassword(@PathVariable("id") int id, @PathVariable("pass") String password){
+        Optional<UserEntity> user = userRepository.modifyPassword(id, password);
+
+        return ResponseEntity.ok(user);
     }
 
 }

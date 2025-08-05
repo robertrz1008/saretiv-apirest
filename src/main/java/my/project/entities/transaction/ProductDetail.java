@@ -26,7 +26,7 @@ public class ProductDetail {
     private Sale sale;
 
     public ProductDetail(int productAmount, int subtotal, Product product, Sale sale) {
-        ProductAmount = productAmount;
+        this.ProductAmount = productAmount;
         this.subtotal = subtotal;
         this.product = product;
         this.sale = sale;

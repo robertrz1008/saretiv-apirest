@@ -19,9 +19,13 @@ public class SaleService {
     private ProductDetailRepository productDetailRepository;
 
     public ResponseEntity<List<ProductDetail>> createProductDetail(List<ProductDetail> productDetails) {
-        List<ProductDetail> productDetailsSaved = productDetailRepository.saveAll(productDetails);
+        try {
+            List<ProductDetail> productDetailsSaved = productDetailRepository.saveAll(productDetails);
 
-        return ResponseEntity.ok(productDetailsSaved);
+            return ResponseEntity.ok(productDetailsSaved);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ResponseEntity<List<ProductDetail>> listProductDetail(){

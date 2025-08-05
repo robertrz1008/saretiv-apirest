@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService{
@@ -25,7 +27,11 @@ public class CustomerService{
     }
 
     public ResponseEntity<List<Customer>> findAll() {
-        return new ResponseEntity<>(customerRepository.findAll(), HttpStatus.OK);
+        List<Customer> customers = customerRepository.findAll().stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
     public ResponseEntity<Customer> update(String doc, Customer customer) {

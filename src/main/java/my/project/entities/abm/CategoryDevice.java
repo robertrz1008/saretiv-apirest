@@ -27,8 +27,13 @@ public class CategoryDevice {
     @JsonIgnore
     private List<Device> devices;
 
+
+
     public CategoryDevice(String name) {
         this.name = name;
+    }
+    public CategoryDevice(){
+
     }
 
     public String getName() {
@@ -39,5 +44,7 @@ public class CategoryDevice {
         this.name = name;
     }
 
-
+    public int getId() {
+        return id;
+    }
 }

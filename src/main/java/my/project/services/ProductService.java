@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService implements InAbmService<Product, Integer> {
@@ -26,7 +28,10 @@ public class ProductService implements InAbmService<Product, Integer> {
 
     @Override
     public ResponseEntity<List<Product>> findAll() {
-        return ResponseEntity.ok(productRepository.findAll());
+        List<Product> products = productRepository.findAll().stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(products);
     }
 
     @Override
@@ -60,6 +65,12 @@ public class ProductService implements InAbmService<Product, Integer> {
         List<Product> list = productRepository.findByFilter(filter);
 
         return ResponseEntity.ok(list);
+    }
+
+    public ResponseEntity<Product> findById(int id){
+        Product pro = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("product not found"));
+        return ResponseEntity.ok(pro);
     }
 
 

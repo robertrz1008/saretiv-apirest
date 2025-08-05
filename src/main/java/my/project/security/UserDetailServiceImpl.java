@@ -4,9 +4,9 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import my.project.dao.auth.AuthResponse;
-import my.project.dao.auth.LoginRequest;
-import my.project.dao.auth.RegisterRequest;
+import my.project.dto.auth.AuthResponse;
+import my.project.dto.auth.LoginRequest;
+import my.project.dto.auth.RegisterRequest;
 import my.project.entities.abm.Role;
 import my.project.entities.abm.UserEntity;
 import my.project.repository.RoleRepository;
@@ -16,7 +16,6 @@ import my.project.security.jwt.JWTConfig;
 import my.project.utils.Log;
 import my.project.utils.exceptions.CustomAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -138,12 +137,11 @@ public class UserDetailServiceImpl implements UserDetailsService {
 //  crud
 
     public ResponseEntity<List<UserEntity>> usersList(){
-        List<UserEntity> usersFound = userRepository.findAll();
-
-        List<UserEntity> usersOrdered = usersFound.stream()
+        List<UserEntity> usersFound = userRepository.findAll().stream()
                 .sorted(Comparator.comparing(e -> e.getId()))
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(usersOrdered, HttpStatus.OK);
+
+        return new ResponseEntity<>(usersFound, HttpStatus.OK);
     }
 
     public ResponseEntity<UserEntity> updateUser(String doc, RegisterRequest user){

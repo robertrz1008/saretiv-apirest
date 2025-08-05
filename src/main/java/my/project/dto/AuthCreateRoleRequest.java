@@ -1,4 +1,4 @@
-package my.project.dao;
+package my.project.dto;
 
 import jakarta.validation.constraints.Size;
 

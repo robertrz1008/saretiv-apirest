@@ -1,10 +1,13 @@
 package my.project.entities.abm;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import my.project.entities.transaction.Support;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.springframework.lang.NonNull;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -24,6 +27,10 @@ public class UserEntity extends Person{
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Support> supports;
 
     public UserEntity(
             String name,

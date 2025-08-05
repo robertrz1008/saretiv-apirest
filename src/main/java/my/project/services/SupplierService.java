@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SupplierService implements InAbmService<Supplier, Integer> {
@@ -27,7 +29,11 @@ public class SupplierService implements InAbmService<Supplier, Integer> {
     }
 
     public ResponseEntity<List<Supplier>> findAll() {
-        return ResponseEntity.ok(supplierRepository.findAll());
+        List<Supplier> suppliers = supplierRepository.findAll().stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(suppliers);
     }
 
     public ResponseEntity<List<Supplier>> findByFilter(String filter) {

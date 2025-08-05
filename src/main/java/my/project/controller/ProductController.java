@@ -32,6 +32,10 @@ public class ProductController implements InAbmService<Product, Integer> {
     public ResponseEntity<List<Product>> findByFIlter(@PathVariable("str") String filter) {
         return productService.findByFilter(filter);
     }
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Product> findByFIlter(@PathVariable("id") int id) {
+        return productService.findById(id);
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable Integer id,@RequestBody Product entity) {
@@ -42,6 +46,5 @@ public class ProductController implements InAbmService<Product, Integer> {
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return productService.delete(id);
     }
-
 
 }

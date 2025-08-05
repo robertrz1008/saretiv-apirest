@@ -1,7 +1,10 @@
 package my.project.entities.transaction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import my.project.entities.abm.Customer;
+import my.project.entities.abm.UserEntity;
+import org.springframework.security.core.userdetails.User;
 
 import java.util.Date;
 import java.util.List;
@@ -19,25 +22,28 @@ public class Support {
     private double total;
 
     @OneToOne(mappedBy = "support")
+    @JsonIgnore
     private Device device;
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
 
-    @ManyToMany
-    @JoinTable(name="support_detail", joinColumns = @JoinColumn(name = "support_id"), inverseJoinColumns = @JoinColumn(name = "typesupport_id"))
-    private List<TypeSupport> typeSupports;
 
-    public Support(Date startDate, Date endDate, String status, double total, Device device, Customer customer, List<TypeSupport> typeSupports) {
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private UserEntity user;
+
+    public Support(Date startDate, Date endDate, String status, double total, Device device, Customer customer, UserEntity user) {
+        this.user = user;
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
         this.total = total;
         this.device = device;
         this.customer = customer;
-        this.typeSupports = typeSupports;
     }
+    public Support(){}
 
     public long getId() {
         return id;
@@ -83,19 +89,31 @@ public class Support {
         this.customer = customer;
     }
 
-    public List<TypeSupport> getTypeSupports() {
-        return typeSupports;
-    }
-
-    public void setTypeSupports(List<TypeSupport> typeSupports) {
-        this.typeSupports = typeSupports;
-    }
-
     public Date getStartDate() {
         return startDate;
     }
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
+    }
+    @Override
+    public String toString() {
+        return "Support{" +
+                "id=" + id +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", status='" + status + '\'' +
+                ", total=" + total +
+                ", customer=" + (customer != null ? customer.getName() : "null") +
+                ", user=" + (user != null ? user.getUsername() : "null") +
+                '}';
     }
 }

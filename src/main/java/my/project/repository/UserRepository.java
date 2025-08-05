@@ -1,9 +1,7 @@
 package my.project.repository;
 
 import jakarta.transaction.Transactional;
-import my.project.dao.auth.entityManager.UserRole;
 import my.project.entities.abm.UserEntity;
-import org.apache.catalina.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -40,4 +38,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
     Optional<UserEntity> findByDocument(String document);
 
+    @Query(value = "UPDATE SET users(password) VALUES(:pass) WHERE id = :id", nativeQuery = true)
+    Optional<UserEntity> modifyPassword(@Param("id") int id, @Param("pass") String password);
 }

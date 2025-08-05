@@ -1,4 +1,4 @@
-package my.project.dao.auth.entityManager;
+package my.project.dto.auth.entityManager;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 

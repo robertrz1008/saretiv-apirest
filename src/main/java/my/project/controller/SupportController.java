@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/support")
@@ -33,13 +34,17 @@ public class SupportController{
         return supportService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<Support>> findById(@PathVariable Integer id) {
+        return supportService.findById(id);
+    }
     @GetMapping("/custom")
     public ResponseEntity<List<SupportDTO>> findAllCustomized() {
         return supportService.findAllCustomized();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Support> update(@PathVariable Integer id, @RequestBody Support entity) {
+    public ResponseEntity<Support> update(@PathVariable Integer id, @RequestBody SupportRequestDTO entity) {
         return supportService.update(id, entity);
     }
 

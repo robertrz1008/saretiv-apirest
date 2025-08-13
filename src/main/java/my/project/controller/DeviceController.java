@@ -1,5 +1,6 @@
 package my.project.controller;
 
+import my.project.dto.abm.DeviceRequest;
 import my.project.entities.abm.CategoryDevice;
 import my.project.entities.transaction.Device;
 import my.project.services.DeviceService;
@@ -12,13 +13,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/device")
-public class DeviceController implements InAbmService<Device, Integer> {
+public class DeviceController  {
 
     @Autowired
     private DeviceService deviceService;
 
     @PostMapping
-    public ResponseEntity<Device> create(@RequestBody Device entity) {
+    public ResponseEntity<Device> create(@RequestBody DeviceRequest entity) {
         return deviceService.create(entity);
     }
 

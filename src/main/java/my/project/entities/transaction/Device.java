@@ -28,6 +28,7 @@ public class Device {
         this.category = category;
         this.support = support;
     }
+    public Device(){}
 
     public String getObservation() {
         return observation;

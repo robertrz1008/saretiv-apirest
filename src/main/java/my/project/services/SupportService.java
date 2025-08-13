@@ -8,12 +8,14 @@ import my.project.entities.transaction.Support;
 import my.project.repository.CustomerRepository;
 import my.project.repository.SupportRepository;
 import my.project.repository.UserRepository;
-import my.project.services.Interface.InAbmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SupportService{
@@ -48,14 +50,29 @@ public class SupportService{
         return null;
     }
 
-    public ResponseEntity<List<SupportDTO>> findAllCustomized() {
-        return ResponseEntity.ok(supportRepository.findAllCustomized());
+    public ResponseEntity<Optional<Support>> findById(Integer id) {
+        return ResponseEntity.ok(supportRepository.findById(id));
     }
 
-    public ResponseEntity<Support> update(Integer id, Support entity) {
-        Support support = supportRepository.findById(id)
+    public ResponseEntity<List<SupportDTO>> findAllCustomized() {
+        List<SupportDTO> supportList = supportRepository.findAllCustomized().stream()
+                .sorted(Comparator.comparing(e -> e.getId()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(supportList);
+    }
+
+    public ResponseEntity<Support> update(Integer id, SupportRequestDTO entity) {
+        Support supportFound = supportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(" device not found"));
-        return ResponseEntity.ok(supportRepository.save(support));
+        UserEntity userFound = userRepository.findById(entity.userId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        supportFound.setStatus(entity.status());
+        supportFound.setTotal(entity.total());
+        supportFound.setUser(userFound);
+
+        return ResponseEntity.ok(supportRepository.save(supportFound));
     }
 
     public ResponseEntity<String> delete(Integer id) {

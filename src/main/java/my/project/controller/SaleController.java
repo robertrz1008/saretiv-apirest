@@ -1,5 +1,6 @@
 package my.project.controller;
 
+import my.project.dto.supportCustomDTO.ProductDetailResponse;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
 import my.project.repository.ProductDetailRepository;
@@ -28,12 +29,38 @@ public class SaleController {
     public ResponseEntity<List<ProductDetail>> createProD(@RequestBody List<ProductDetail> productDetails){
         return saleservice.createProductDetail(productDetails);
     }
+
     @GetMapping("/proDetail")
     public ResponseEntity<List<ProductDetail>> findProDetial(){
         List<ProductDetail> productDetails = productDetailRepository.findAll().stream()
                 .sorted(Comparator.comparing(e -> e.getId()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(productDetails);
+    }
+
+    @PutMapping("/proDetail/{id}")
+    public ResponseEntity<ProductDetail> updateProductDetail(@PathVariable int id, @RequestBody ProductDetail productDetail){
+        return saleservice.updateProductDetail(id, productDetail);
+    }
+    @GetMapping("/proDetail/{id}")
+    public ResponseEntity<ProductDetail> findProDetailById(@PathVariable int id){
+        return saleservice.findById(id);
+    }
+
+    @DeleteMapping("/proDetail/{id}")
+    public ResponseEntity<?> deleteProductDetail(@PathVariable int id){
+        return saleservice.deleteProduct(id);
+    }
+
+    @DeleteMapping("/proDetail/support/{id}")
+    public ResponseEntity<?> deleteProductDetial(@PathVariable int id){
+        return saleservice.deleteProDetailBySupportId(id);
+    }
+
+    @GetMapping("/proDetail/support/{id}")
+    public ResponseEntity<List<ProductDetailResponse>> findBySupport(@PathVariable int id){
+        List<ProductDetailResponse> product = productDetailRepository.findBySupport(id);
+        return ResponseEntity.ok(product);
     }
 
     @PostMapping

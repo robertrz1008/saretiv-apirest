@@ -9,10 +9,13 @@ import my.project.repository.CustomerRepository;
 import my.project.repository.SupportRepository;
 import my.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,24 +58,66 @@ public class SupportService{
     }
 
     public ResponseEntity<List<SupportDTO>> findAllCustomized() {
-        List<SupportDTO> supportList = supportRepository.findAllCustomized().stream()
-                .sorted(Comparator.comparing(e -> e.getId()))
-                .collect(Collectors.toList());
+        List<SupportDTO> supportList = supportRepository.findAllCustomized();
 
         return ResponseEntity.ok(supportList);
     }
 
+    public ResponseEntity<SupportDTO> findCustomizedById(int id){
+        try {
+            SupportDTO supports = supportRepository.findAllCustomizedById(id);
+            return ResponseEntity.ok(supports);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ResponseEntity<Support> update(Integer id, SupportRequestDTO entity) {
         Support supportFound = supportRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(" device not found"));
+                .orElseThrow(() -> new RuntimeException("device not found"));
         UserEntity userFound = userRepository.findById(entity.userId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        supportFound.setStatus(entity.status());
+//        supportFound.setStatus(entity.status());
+        supportFound.setStartDate(entity.startDate());
         supportFound.setTotal(entity.total());
         supportFound.setUser(userFound);
 
         return ResponseEntity.ok(supportRepository.save(supportFound));
+    }
+
+    public ResponseEntity<Support> updateStatus(Integer id, String status){
+        Support supportFound = supportRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "support not found"));
+
+        if(status.equals("FINALIZADO")){
+            supportFound.setEndDate(new Date());
+        }
+        if(status.equals("ACTIVO")){
+            supportFound.setEndDate(null);
+        }
+
+        supportFound.setStatus(status);
+
+
+        try {
+            return ResponseEntity.ok(supportRepository.save(supportFound));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResponseEntity<Support> updateTotal(Long total, Integer id){
+        Support supportFound = supportRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("device not found"));
+        supportFound.setTotal(total);
+
+        try {
+            Support sup =supportRepository.save(supportFound);
+            return ResponseEntity.ok(sup);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ResponseEntity<String> delete(Integer id) {

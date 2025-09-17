@@ -28,13 +28,23 @@ public class DeviceController  {
         return deviceService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Device> findById(@PathVariable Integer id){
+        return deviceService.findById(id);
+    }
+
+    @GetMapping("/support/{id}")
+    public ResponseEntity<Device> findBySupport(@PathVariable Integer id){
+        return deviceService.findBySupportId(id);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Device> update(@PathVariable Integer id, @RequestBody Device entity) {
         return deviceService.update(id, entity);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(Integer id) {
+    public ResponseEntity<String> delete(@PathVariable Integer id) {
         return deviceService.delete(id);
     }
 }

@@ -48,8 +48,22 @@ public class SupportController{
         return supportService.update(id, entity);
     }
 
+    @GetMapping("/custom/{id}")
+    public ResponseEntity<SupportDTO> findCustomizedById(@PathVariable int id){
+        return supportService.findCustomizedById(id);
+    }
+    @PutMapping("/status/{status}/{id}")
+    public ResponseEntity<Support> updateStatus(@PathVariable("id") Integer id, @PathVariable("status") String entity) {
+        return supportService.updateStatus(id, entity);
+    }
+
+    @PutMapping("/total/{total}/{id}")
+    public ResponseEntity<Support> updateTotal(@PathVariable("total") Long total, @PathVariable("id") Integer id) {
+        return supportService.updateTotal(total, id);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(Integer id) {
+    public ResponseEntity<String> delete(@PathVariable Integer id) {
         return supportService.delete(id);
     }
 }

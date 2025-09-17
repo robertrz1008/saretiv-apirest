@@ -12,7 +12,8 @@ public interface SupportDTO {
         Integer getCustomerId();
         Integer getDevId();
         String getDocument();
-        LocalDate getStarDate();
+        LocalDate getStartDate();
+        LocalDate getEndDate();
         long getTotal();
         String getStatus(); // cambia si es necesario
         String getUser();

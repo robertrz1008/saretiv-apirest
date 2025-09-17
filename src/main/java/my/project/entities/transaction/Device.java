@@ -61,4 +61,8 @@ public class Device {
     public void setSupport(Support support) {
         this.support = support;
     }
+
+    public int getId() {
+        return id;
+    }
 }

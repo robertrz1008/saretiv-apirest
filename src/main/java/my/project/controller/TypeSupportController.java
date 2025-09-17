@@ -29,6 +29,11 @@ public class TypeSupportController implements InAbmService<TypeSupport, Integer>
         return typeSupportService.findAll();
     }
 
+    @GetMapping("/filter/{fil}")
+    public ResponseEntity<List<TypeSupport>> findByFilter(@PathVariable("fil") String filter){
+        return typeSupportService.findByFIlter(filter);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<TypeSupport> update(@PathVariable Integer id, @RequestBody TypeSupport entity) {
         return typeSupportService.update(id, entity);

@@ -28,6 +28,11 @@ public class ProductController implements InAbmService<Product, Integer> {
     public ResponseEntity<List<Product>> findAll() {
         return productService.findAll();
     }
+
+    @GetMapping("/jdbc")
+    public ResponseEntity<?> findAllJdbc() {
+        return productService.findwithJdbc();
+    }
     @GetMapping("/filter/{str}")
     public ResponseEntity<List<Product>> findByFIlter(@PathVariable("str") String filter) {
         return productService.findByFilter(filter);
@@ -40,6 +45,10 @@ public class ProductController implements InAbmService<Product, Integer> {
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable Integer id,@RequestBody Product entity) {
         return productService.update(id, entity);
+    }
+    @PutMapping("/stock/{id}/{stock}")
+    public ResponseEntity<Product> updateStock(@PathVariable("id") Integer id,@PathVariable("stock") Integer stock) {
+        return productService.updateStock(id, stock);
     }
 
     @DeleteMapping("/{id}")

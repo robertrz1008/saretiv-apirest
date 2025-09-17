@@ -29,10 +29,17 @@ public class Support {
     @JoinColumn(name = "customer_id", referencedColumnName = "id", nullable = false)
     private Customer customer;
 
-
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
+
+    @OneToMany(mappedBy = "support", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<ProductDetail> productDetails;
+
+    @OneToMany(mappedBy = "support", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SupportActivity> supportActivities;
 
     public Support(Date startDate, Date endDate, String status, double total, Device device, Customer customer, UserEntity user) {
         this.user = user;

@@ -1,5 +1,6 @@
 package my.project.services;
 
+import my.project.entities.abm.Customer;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
 import my.project.repository.ProductDetailRepository;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SaleService {
@@ -28,8 +30,50 @@ public class SaleService {
         }
     }
 
+    public ResponseEntity<String> deleteProDetailBySupportId(int id){
+        try {
+            productDetailRepository.deleteBySupportId(id);
+            return ResponseEntity.ok("OK");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ResponseEntity<List<ProductDetail>> listProductDetail(){
         return ResponseEntity.ok(productDetailRepository.findAll());
+    }
+
+    public ResponseEntity<ProductDetail> findById(int id){
+        ProductDetail productDetailFound = productDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("product detail not found"));
+
+        return ResponseEntity.ok(productDetailFound);
+    }
+
+    public ResponseEntity<ProductDetail> updateProductDetail(Integer id, ProductDetail entity){
+        ProductDetail productDetailFound = productDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("product detail not found"));
+
+        productDetailFound.setProductAmount(entity.getProductAmount());
+        productDetailFound.setSubtotal(entity.getSubtotal());
+
+        try {
+            ProductDetail pro = productDetailRepository.save(productDetailFound);
+            return ResponseEntity.ok(pro);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ResponseEntity<?> deleteProduct(int id){
+        ProductDetail productDetailFound = productDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("product detail not found"));
+        try {
+            productDetailRepository.delete(productDetailFound);
+            return ResponseEntity.ok("ok");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ResponseEntity<Sale> createSale(Sale sale){

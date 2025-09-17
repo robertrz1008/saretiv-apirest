@@ -1,5 +1,6 @@
 package my.project.entities.transaction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import my.project.entities.abm.CategoryDevice;
@@ -21,15 +22,14 @@ public class TypeSupport {
     @JoinColumn(name= "catdevice", referencedColumnName = "id", nullable = false)
     private CategoryDevice category;
 
-    @ManyToMany
-    @JoinTable(name="support_detail", joinColumns = @JoinColumn(name = "support_id"), inverseJoinColumns = @JoinColumn(name = "typesupport_id"))
-    private List<Support> supports;
+    @OneToMany(mappedBy = "supportType", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SupportActivity> supportActivities;
 
-    public TypeSupport(String description, double amount, CategoryDevice category, List<Support> supports) {
+    public TypeSupport(String description, double amount, CategoryDevice category) {
         this.description = description;
         this.amount = amount;
         this.category = category;
-        this.supports = supports;
     }
     public TypeSupport(){}
 
@@ -63,11 +63,4 @@ public class TypeSupport {
         this.category = category;
     }
 
-    public List<Support> getSupports() {
-        return supports;
-    }
-
-    public void setSupports(List<Support> supports) {
-        this.supports = supports;
-    }
 }

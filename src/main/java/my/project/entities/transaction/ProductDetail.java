@@ -25,11 +25,16 @@ public class ProductDetail {
     @JoinColumn(name = "sale_id", referencedColumnName = "id", nullable = false)
     private Sale sale;
 
-    public ProductDetail(int productAmount, int subtotal, Product product, Sale sale) {
+    @ManyToOne
+    @JoinColumn(name = "support_id", referencedColumnName = "id", nullable = true)
+    private Support support;
+
+    public ProductDetail(int productAmount, int subtotal, Product product, Sale sale, Support support) {
         this.ProductAmount = productAmount;
         this.subtotal = subtotal;
         this.product = product;
         this.sale = sale;
+        this.support = support;
     }
 
     public ProductDetail() {
@@ -70,6 +75,14 @@ public class ProductDetail {
 
     public Sale getSale() {
         return sale;
+    }
+
+    public Support getSupport() {
+        return support;
+    }
+
+    public void setSupport(Support support) {
+        this.support = support;
     }
 
     public void setSale(Sale sale) {

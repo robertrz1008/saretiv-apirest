@@ -32,6 +32,15 @@ public class TypeSupportService implements InAbmService<TypeSupport, Integer> {
         return ResponseEntity.ok(typeSupports);
     }
 
+    public ResponseEntity<List<TypeSupport>> findByFIlter(String filter){
+        try {
+            List<TypeSupport> suppTypes = typeSupportRepository.findByFilter(filter);
+            return ResponseEntity.ok(suppTypes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ResponseEntity<TypeSupport> update(Integer id, TypeSupport entity) {
         TypeSupport typeSupportFound = typeSupportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("typesuppor not found"));

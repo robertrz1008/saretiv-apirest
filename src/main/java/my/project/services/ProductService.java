@@ -8,6 +8,7 @@ import my.project.services.Interface.InAbmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -20,6 +21,12 @@ public class ProductService implements InAbmService<Product, Integer> {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+
+
 
     @Override
     public ResponseEntity<Product> create(Product entity) {
@@ -52,6 +59,15 @@ public class ProductService implements InAbmService<Product, Integer> {
         return ResponseEntity.ok(productRepository.save(productFound));
     }
 
+    public ResponseEntity<Product> updateStock(Integer id, int stock) {
+        Product productFound = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("product not found"));
+
+        productFound.setStock(stock);
+
+        return ResponseEntity.ok(productRepository.save(productFound));
+    }
+
     @Override
     public ResponseEntity<String> delete(Integer id) {
         Product productFound = productRepository.findById(id)
@@ -73,5 +89,12 @@ public class ProductService implements InAbmService<Product, Integer> {
         return ResponseEntity.ok(pro);
     }
 
+    public ResponseEntity<List<Product>> findwithJdbc(){
+        String query = "SELECT * FROM products";
+
+        List<Product> products = jdbcTemplate.queryForList(query, Product.class);
+
+        return ResponseEntity.ok(products);
+    }
 
 }

@@ -53,6 +53,20 @@ public class DeviceService {
         return ResponseEntity.ok(deviceRepository.findAll());
     }
 
+    public ResponseEntity<Device> findById(int id){
+        Device deviceFound = deviceRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(" device not found"));
+
+        return ResponseEntity.ok(deviceFound);
+    }
+
+    public ResponseEntity<Device> findBySupportId(int id){
+        Device deviceFound = deviceRepository.findBySupportId(id)
+                .orElseThrow(() -> new RuntimeException(" device not found"));
+
+        return ResponseEntity.ok(deviceFound);
+    }
+
     public ResponseEntity<Device> update(Integer id, Device entity) {
         Device deviceFound = deviceRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(" device not found"));
@@ -68,7 +82,7 @@ public class DeviceService {
                 .orElseThrow(() -> new RuntimeException(" device not found"));
 
         try {
-            deviceRepository.delete(deviceFound);
+            deviceRepository.deleteCustom(deviceFound.getId());
             return ResponseEntity.ok("ok");
         } catch (Exception e) {
             throw new RuntimeException(e);

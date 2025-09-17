@@ -24,6 +24,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     FROM products
     WHERE description ILIKE CONCAT('%', :filter, '%')
        OR barcode ILIKE CONCAT('%', :filter, '%')
+    AND stock > 0
     """, nativeQuery = true)
     List<Product> findByFilter(@Param("filter") String filter);
 }

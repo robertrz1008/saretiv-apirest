@@ -1,7 +1,6 @@
-package my.project.repository;
+package my.project.repository.jpa;
 
 import jakarta.transaction.Transactional;
-import my.project.entities.abm.Product;
 import my.project.entities.transaction.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

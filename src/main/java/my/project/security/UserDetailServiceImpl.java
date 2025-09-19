@@ -7,10 +7,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import my.project.dto.auth.AuthResponse;
 import my.project.dto.auth.LoginRequest;
 import my.project.dto.auth.RegisterRequest;
+import my.project.dto.params.UserParamsDTO;
 import my.project.entities.abm.Role;
 import my.project.entities.abm.UserEntity;
-import my.project.repository.RoleRepository;
-import my.project.repository.UserRepository;
+import my.project.repository.jpa.RoleRepository;
+import my.project.repository.jpa.UserRepository;
 import my.project.security.cookie.CookieUtil;
 import my.project.security.jwt.JWTConfig;
 import my.project.utils.Log;
@@ -18,6 +19,7 @@ import my.project.utils.exceptions.CustomAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,6 +45,8 @@ public class UserDetailServiceImpl implements UserDetailsService {
     private RoleRepository roleRepository;
     @Autowired
     private JWTConfig jwtUtils;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     private Log log = new Log<>(UserDetailsService.class);
 
@@ -252,6 +256,56 @@ public class UserDetailServiceImpl implements UserDetailsService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ResponseEntity<List<UserEntity>> findByParams(UserParamsDTO userParams){
+//        String query = "SELECT \n" +
+//                "\tpro.id, pro.description, pro.stock, pro.entry_sale, pro.entry_sale, pro.stock,\n" +
+//                "\tcat.id, cat.name, \n" +
+//                "\tsup.id, sup.name, sup.address, sup.ruc, sup.telephone\n" +
+//                "FROM products AS pro \n" +
+//                "\tJOIN categories_product as cat ON pro.category_id = cat.id\n" +
+//                "\tJOIN suppliers AS sup ON pro.supplier_id = sup.id ";
+
+        String query = "SELECT us.id, us.name, us.lastname, us.username, us.document, us.telephone, us.password, us.status, us,entry_date,\n" +
+                "\tro.id AS \"roleId\", ro.name AS \"roleName\"\n" +
+                "FROM users AS us \n" +
+                "\tJOIN user_role as ur ON us.id = ur.user_id \n" +
+                "\tJOIN roles AS ro ON ur.role_id = ro.id WHERE us.name ILIKE '%%'";
+
+        if(userParams.isActive() == true){
+            query +=" AND us.status = "+userParams.isActive();
+        }
+        if(userParams.role() != null){
+            query += " AND ro.name = '"+userParams.role()+"'";
+        }
+        if(userParams.property() != null){
+            query += " ORDER BY "+userParams.property();
+
+            if(userParams.order() != null){
+                query += " "+userParams.order();
+            }
+        }
+
+
+        List<UserEntity> userResponse = jdbcTemplate.query(query, (rs, row) ->
+             new UserEntity.Builder()
+
+                    .lastname(rs.getString("lastname"))
+                    .name(rs.getString("name"))
+                    .document(rs.getString("document"))
+                    .telephone(rs.getString("telephone"))
+                    .username(rs.getString("username"))
+                    .password(rs.getString("password"))
+                    .entryDate(rs.getDate("entry_date"))
+                    .status(rs.getBoolean("status"))
+                    .addOneRole(
+                            rs.getInt("roleId"),
+                            rs.getString("roleName")
+                    )
+                    .build()
+        );
+        return ResponseEntity.ok(userResponse);
     }
 
 }

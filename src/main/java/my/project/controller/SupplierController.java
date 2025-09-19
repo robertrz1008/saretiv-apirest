@@ -1,8 +1,6 @@
 package my.project.controller;
 
-import my.project.entities.abm.Product;
 import my.project.entities.abm.Supplier;
-import my.project.repository.ProductRepository;
 import my.project.services.Interface.InAbmService;
 import my.project.services.SupplierService;
 import org.springframework.beans.factory.annotation.Autowired;

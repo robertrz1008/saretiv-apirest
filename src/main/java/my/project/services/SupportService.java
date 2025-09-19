@@ -5,20 +5,18 @@ import my.project.dto.supportCustomDTO.SupportRequestDTO;
 import my.project.entities.abm.Customer;
 import my.project.entities.abm.UserEntity;
 import my.project.entities.transaction.Support;
-import my.project.repository.CustomerRepository;
-import my.project.repository.SupportRepository;
-import my.project.repository.UserRepository;
+import my.project.repository.jpa.CustomerRepository;
+import my.project.repository.jpa.SupportRepository;
+import my.project.repository.jpa.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class SupportService{

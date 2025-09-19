@@ -1,6 +1,6 @@
-package my.project.dto.filter;
+package my.project.dto.params;
 
-public record UserFilerDTO(
+public record UserParamsDTO(
         String property,
         String role,
         String order,

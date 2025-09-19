@@ -1,4 +1,4 @@
-package my.project.repository;
+package my.project.repository.jpa;
 
 import jakarta.transaction.Transactional;
 import my.project.entities.abm.UserEntity;

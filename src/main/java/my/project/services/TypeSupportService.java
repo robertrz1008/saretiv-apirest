@@ -1,12 +1,9 @@
 package my.project.services;
 
-import my.project.entities.abm.CategoryProduct;
-import my.project.entities.abm.Product;
 import my.project.entities.transaction.TypeSupport;
-import my.project.repository.TypeSupportRepository;
+import my.project.repository.jpa.TypeSupportRepository;
 import my.project.services.Interface.InAbmService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 

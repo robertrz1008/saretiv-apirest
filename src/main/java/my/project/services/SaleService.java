@@ -1,17 +1,15 @@
 package my.project.services;
 
-import my.project.entities.abm.Customer;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
-import my.project.repository.ProductDetailRepository;
-import my.project.repository.SaleRepository;
+import my.project.repository.jpa.ProductDetailRepository;
+import my.project.repository.jpa.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class SaleService {

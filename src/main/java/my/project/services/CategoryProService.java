@@ -2,8 +2,8 @@ package my.project.services;
 
 import my.project.entities.abm.CategoryProduct;
 import my.project.entities.abm.Product;
-import my.project.repository.CategoryProRepository;
-import my.project.repository.ProductRepository;
+import my.project.repository.jpa.CategoryProRepository;
+import my.project.repository.jpa.ProductRepository;
 import my.project.services.Interface.InAbmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,18 +1,12 @@
 package my.project.services;
 
-import my.project.controller.CategoryDevController;
 import my.project.dto.abm.DeviceRequest;
 import my.project.entities.abm.CategoryDevice;
-import my.project.entities.abm.Customer;
-import my.project.entities.abm.Supplier;
-import my.project.entities.abm.UserEntity;
 import my.project.entities.transaction.Device;
 import my.project.entities.transaction.Support;
-import my.project.repository.CategoryDevRepository;
-import my.project.repository.DeviceRepository;
-import my.project.repository.SupplierRepository;
-import my.project.repository.SupportRepository;
-import my.project.services.Interface.InAbmService;
+import my.project.repository.jpa.CategoryDevRepository;
+import my.project.repository.jpa.DeviceRepository;
+import my.project.repository.jpa.SupportRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

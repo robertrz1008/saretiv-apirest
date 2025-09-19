@@ -3,7 +3,7 @@ package my.project.controller;
 import my.project.dto.supportCustomDTO.ProductDetailResponse;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
-import my.project.repository.ProductDetailRepository;
+import my.project.repository.jpa.ProductDetailRepository;
 import my.project.services.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,12 +1,10 @@
 package my.project.services;
 
-import my.project.entities.abm.CategoryProduct;
-import my.project.entities.abm.Customer;
 import my.project.entities.abm.Product;
-import my.project.repository.ProductRepository;
+import my.project.repository.jdbc.ExampleRepository;
+import my.project.repository.jpa.ProductRepository;
 import my.project.services.Interface.InAbmService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,8 @@ public class ProductService implements InAbmService<Product, Integer> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private ExampleRepository exampleRepository;
 
 
 
@@ -90,11 +90,10 @@ public class ProductService implements InAbmService<Product, Integer> {
     }
 
     public ResponseEntity<List<Product>> findwithJdbc(){
-        String query = "SELECT * FROM products";
 
-        List<Product> products = jdbcTemplate.queryForList(query, Product.class);
+        List<Product> pro  = exampleRepository.findwithJdbc();
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(pro);
     }
 
 }

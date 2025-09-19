@@ -1,4 +1,4 @@
-package my.project.repository;
+package my.project.repository.jpa;
 
 import my.project.entities.abm.CategoryDevice;
 import org.springframework.data.jpa.repository.JpaRepository;

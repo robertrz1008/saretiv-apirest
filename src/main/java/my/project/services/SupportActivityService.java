@@ -1,8 +1,7 @@
 package my.project.services;
 
 import my.project.entities.transaction.SupportActivity;
-import my.project.repository.SupportActivityRepository;
-import my.project.services.Interface.InAbmService;
+import my.project.repository.jpa.SupportActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

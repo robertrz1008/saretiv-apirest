@@ -1,5 +1,4 @@
-package my.project.repository;
-import my.project.entities.abm.Supplier;
+package my.project.repository.jpa;
 import my.project.entities.transaction.TypeSupport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

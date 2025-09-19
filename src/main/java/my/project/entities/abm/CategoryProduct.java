@@ -36,6 +36,10 @@ public class CategoryProduct {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public CategoryProduct(List<Product> products, String name) {
         this.products = products;
         this.name = name;

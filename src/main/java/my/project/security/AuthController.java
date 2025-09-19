@@ -6,8 +6,9 @@ import jakarta.validation.Valid;
 import my.project.dto.auth.AuthResponse;
 import my.project.dto.auth.LoginRequest;
 import my.project.dto.auth.RegisterRequest;
+import my.project.dto.params.UserParamsDTO;
 import my.project.entities.abm.UserEntity;
-import my.project.repository.UserRepository;
+import my.project.repository.jpa.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,11 @@ public class AuthController {
         Optional<UserEntity> user = userRepository.modifyPassword(id, password);
 
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/params")
+    public ResponseEntity<List<UserEntity>> findByParams(@RequestBody UserParamsDTO userParams){
+        return userDetailService.findByParams(userParams);
     }
 
 }

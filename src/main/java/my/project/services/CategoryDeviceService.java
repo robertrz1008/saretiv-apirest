@@ -1,11 +1,9 @@
 package my.project.services;
 
 import my.project.entities.abm.CategoryDevice;
-import my.project.repository.CategoryDevRepository;
+import my.project.repository.jpa.CategoryDevRepository;
 import my.project.services.Interface.InAbmService;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 

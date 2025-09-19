@@ -158,6 +158,14 @@ public class UserEntity extends Person{
             this.roles = roles;
             return this;
         }
+        public Builder addOneRole(int id, String name){
+            Role thisRole = new Role(name);
+            thisRole.setId(id);
+
+            Set<Role> rolesList = Set.of(thisRole);
+            this.roles = rolesList;
+            return this;
+        }
 
         public UserEntity build() {
             return new UserEntity(

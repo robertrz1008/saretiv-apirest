@@ -1,6 +1,5 @@
-package my.project.repository;
+package my.project.repository.jpa;
 
-import my.project.entities.abm.Customer;
 import my.project.entities.abm.Supplier;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

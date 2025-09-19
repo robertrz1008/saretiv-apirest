@@ -50,6 +50,10 @@ public class Product {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -105,4 +109,83 @@ public class Product {
     public void setBarcode(String barcode) {
         this.barcode = barcode;
     }
+
+
+
+
+    public static class Builder{
+        private int id;
+        private String description;
+        private double entryPrice;
+        private double salePrice;
+        private int stock;
+        private String barcode;
+        private Supplier supplier;
+        private CategoryProduct category;
+
+        public Builder id(int id){
+            this.id = id;
+            return this;
+        }
+        public Builder description(String description){
+            this.description = description;
+            return this;
+        }
+        public Builder entryPrice(double entryPrice){
+            this.entryPrice = entryPrice;
+            return this;
+        }
+        public Builder salePrice(double salePrice){
+            this.salePrice = salePrice;
+            return this;
+        }
+        public Builder stock(int stock){
+            this.stock = stock;
+            return this;
+        }
+        public Builder barcode(String barcode){
+            this.barcode = barcode;
+            return this;
+        }
+
+
+
+
+
+        public Builder supplier(
+                int  id,
+                String name,
+                String telephone,
+                String ruc,
+                String address
+        ){
+            this.supplier = new Supplier(name, telephone, ruc, address);
+            supplier.setId(id);
+            return this;
+        }
+        public Builder categoryProduct(
+                int id,
+                String name
+        ){
+            this.category = new CategoryProduct(name);
+            category.setId(id);
+            return this;
+        }
+
+        public Product build(){
+            return new Product(
+                    id,
+                    description,
+                    entryPrice,
+                    salePrice,
+                    stock,
+                    supplier,
+                    category,
+                    barcode
+
+            );
+        }
+    }
+
+
 }

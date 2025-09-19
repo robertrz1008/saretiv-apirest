@@ -1,4 +1,4 @@
-package my.project.repository;
+package my.project.repository.jpa;
 
 import my.project.dto.supportCustomDTO.ProductDetailResponse;
 import my.project.entities.transaction.ProductDetail;

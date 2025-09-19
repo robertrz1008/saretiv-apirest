@@ -1,7 +1,7 @@
 package my.project.services;
 
 import my.project.entities.abm.Enterprise;
-import my.project.repository.EnterpriseRepository;
+import my.project.repository.jpa.EnterpriseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

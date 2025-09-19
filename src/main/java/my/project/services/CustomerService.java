@@ -1,14 +1,11 @@
 package my.project.services;
 
 import my.project.entities.abm.Customer;
-import my.project.entities.abm.UserEntity;
-import my.project.repository.CustomerRepository;
-import my.project.services.Interface.InAbmService;
+import my.project.repository.jpa.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.Comparator;

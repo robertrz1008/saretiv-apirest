@@ -1,9 +1,13 @@
 package my.project.services;
 
+import my.project.dto.params.ProductParamsDTO;
 import my.project.entities.abm.Product;
 import my.project.repository.jdbc.ExampleRepository;
 import my.project.repository.jpa.ProductRepository;
+import my.project.security.AuthController;
 import my.project.services.Interface.InAbmService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,6 +29,9 @@ public class ProductService implements InAbmService<Product, Integer> {
 
     @Autowired
     private ExampleRepository exampleRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+
+
 
 
 
@@ -89,11 +96,65 @@ public class ProductService implements InAbmService<Product, Integer> {
         return ResponseEntity.ok(pro);
     }
 
-    public ResponseEntity<List<Product>> findwithJdbc(){
+    public ResponseEntity<List<Product>> findByParams(ProductParamsDTO proParams){
 
-        List<Product> pro  = exampleRepository.findwithJdbc();
+        String query = "SELECT \n" +
+                "\tpro.id, pro.description, pro.barcode, pro.stock, pro.entry_price, pro.entry_sale, pro.stock,\n" +
+                "\tcat.id AS \"catId\", cat.name AS \"catName\", \n" +
+                "\tsup.id AS \"supId\", sup.name AS \"supName\", sup.address AS \"supAddress\", sup.ruc AS \"supRuc\", sup.telephone AS \"supTele\"\n" +
+                "FROM products AS pro \n" +
+                "\tJOIN categories_product as cat ON pro.category_id = cat.id\n" +
+                "\tJOIN suppliers AS sup ON pro.supplier_id = sup.id WHERE pro.description ILIKE '%%'";
 
-        return ResponseEntity.ok(pro);
+        if(proParams.isStock() !=  null){
+            if(proParams.isStock().equals("y") ){
+                query +=" AND pro.stock > 0 ";
+            } else if (proParams.isStock().equals("n")) {
+                query +=" AND pro.stock = 0 ";
+            }
+        }
+        if(proParams.category() != null){
+            query +=" AND cat.name = '"+proParams.category()+"'";
+        }
+        if(proParams.supplier() != null){
+            query +=" AND sup.name = '" + proParams.supplier()+"'";
+        }
+        if(proParams.buyMin() > 0 && proParams.buyMax() > 0){
+            query +=" AND pro.entry_price BETWEEN " + proParams.buyMin()+" AND "+proParams.buyMax();
+        }
+        if(proParams.saleMin() > 0 && proParams.saleMax() > 0){
+            query +=" AND pro.entry_price BETWEEN " + proParams.saleMin()+" AND "+proParams.saleMax();
+        }
+        if(proParams.property() != null){
+            query += " ORDER BY "+proParams.property();
+
+            if(proParams.order() != null){
+                query += " "+proParams.order();
+            }
+        }
+
+        List<Product> productResponse = jdbcTemplate.query(query, (rs, row) ->
+             new Product.Builder()
+                    .id(rs.getInt("id"))
+                    .description(rs.getString("description"))
+                    .stock(rs.getInt("stock"))
+                    .barcode(rs.getString("barcode"))
+                    .entryPrice(rs.getInt("entry_price"))
+                    .salePrice(rs.getInt("entry_sale"))
+                    .categoryProduct(
+                            rs.getInt("catId"),
+                            rs.getString("catName")
+                    )
+                    .supplier(
+                            rs.getInt("supId"),
+                            rs.getString("supName"),
+                            rs.getString("supAddress"),
+                            rs.getString("supRuc"),
+                            rs.getString("supTele")
+                    )
+                    .build()
+        );
+        return ResponseEntity.ok(productResponse);
     }
 
 }

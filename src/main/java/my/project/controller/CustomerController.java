@@ -1,5 +1,6 @@
 package my.project.controller;
 
+import my.project.dto.params.CustomerParamsDTO;
 import my.project.entities.abm.Customer;
 import my.project.entities.abm.UserEntity;
 import my.project.security.AuthController;
@@ -46,5 +47,9 @@ public class CustomerController {
     @GetMapping("/filter/{filter}")
     public ResponseEntity<List<Customer>> findByFilter(@PathVariable String filter){
         return customerService.findByFilter(filter);
+    }
+    @PostMapping("/params")
+    public ResponseEntity<List<Customer>> findByParams(@RequestBody CustomerParamsDTO customerParams){
+        return customerService.findyParams(customerParams);
     }
 }

@@ -1,5 +1,6 @@
 package my.project.controller;
 
+import my.project.dto.params.ProductParamsDTO;
 import my.project.entities.abm.Product;
 import my.project.repository.jpa.ProductRepository;
 import my.project.services.Interface.InAbmService;
@@ -29,10 +30,7 @@ public class ProductController implements InAbmService<Product, Integer> {
         return productService.findAll();
     }
 
-    @GetMapping("/jdbc")
-    public ResponseEntity<?> findAllJdbc() {
-        return productService.findwithJdbc();
-    }
+
     @GetMapping("/filter/{str}")
     public ResponseEntity<List<Product>> findByFIlter(@PathVariable("str") String filter) {
         return productService.findByFilter(filter);
@@ -54,6 +52,11 @@ public class ProductController implements InAbmService<Product, Integer> {
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return productService.delete(id);
+    }
+
+    @PostMapping("/params")
+    public ResponseEntity<List<Product>> findByParams(@RequestBody ProductParamsDTO proParams){
+        return productService.findByParams(proParams);
     }
 
 }

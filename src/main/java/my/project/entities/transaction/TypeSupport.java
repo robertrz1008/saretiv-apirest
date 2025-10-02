@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import my.project.entities.abm.CategoryDevice;
+import my.project.entities.abm.CategoryProduct;
 
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class TypeSupport {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public @NotNull String getDescription() {
         return description;
@@ -61,6 +65,38 @@ public class TypeSupport {
 
     public void setCategory(CategoryDevice category) {
         this.category = category;
+    }
+
+    public static class Builder{
+        private int id;
+        private String description;
+        private double amount;
+        private CategoryDevice category;
+
+        public Builder id(int id){
+            this.id = id;
+            return this;
+        }
+        public Builder description(String description){
+            this.description = description;
+            return this;
+        }
+        public Builder amount(double amount){
+            this.amount = amount;
+            return this;
+        }
+        public Builder categoryDevice( int id, String name){
+            this.category = new CategoryDevice(name);
+            category.setId(id);
+            return this;
+        }
+
+        public TypeSupport build(){
+            TypeSupport sup = new TypeSupport(description, amount, category);
+            sup.setId(id);
+
+            return sup;
+        }
     }
 
 }

@@ -1,5 +1,9 @@
 package my.project.controller;
 
+import my.project.dto.sales.SaleByParamsDTO;
+import my.project.dto.sales.SaleParmasDTO;
+import my.project.dto.sales.SaleResponse;
+import my.project.dto.sales.SalesDatesDTO;
 import my.project.dto.supportCustomDTO.ProductDetailResponse;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
@@ -11,6 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,6 +76,17 @@ public class SaleController {
     @PutMapping("/{id}")
     public ResponseEntity<Sale> updateSale(@RequestBody Sale sale, @PathVariable int id){
         return saleservice.updateSale(id, sale);
+    }
+
+
+    @PostMapping("/data")
+    public ResponseEntity<List<SaleResponse>> findByData(@RequestBody SalesDatesDTO datesDTO){
+        return saleservice.findByDate(datesDTO);
+    }
+
+    @PostMapping("/params")
+    public ResponseEntity<List<SaleByParamsDTO>> findByParams(@RequestBody SaleParmasDTO saleParmas){
+        return saleservice.findByParams(saleParmas);
     }
 
 }

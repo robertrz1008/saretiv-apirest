@@ -1,5 +1,6 @@
 package my.project.controller;
 
+import my.project.dto.params.TypeSupportParamsDTO;
 import my.project.entities.transaction.Device;
 import my.project.entities.transaction.TypeSupport;
 import my.project.services.Interface.InAbmService;
@@ -42,5 +43,10 @@ public class TypeSupportController implements InAbmService<TypeSupport, Integer>
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return typeSupportService.delete(id);
+    }
+
+    @PostMapping("/params")
+    public ResponseEntity<List<TypeSupport>> findByParams(@RequestBody TypeSupportParamsDTO paramsDTO){
+        return typeSupportService.findByParams(paramsDTO);
     }
 }

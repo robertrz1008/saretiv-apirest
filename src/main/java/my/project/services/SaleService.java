@@ -1,5 +1,9 @@
 package my.project.services;
 
+import my.project.dto.sales.SaleByParamsDTO;
+import my.project.dto.sales.SaleParmasDTO;
+import my.project.dto.sales.SaleResponse;
+import my.project.dto.sales.SalesDatesDTO;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
 import my.project.repository.jpa.ProductDetailRepository;
@@ -7,8 +11,10 @@ import my.project.repository.jpa.SaleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -17,6 +23,8 @@ public class SaleService {
     private SaleRepository saleRepository;
     @Autowired
     private ProductDetailRepository productDetailRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public ResponseEntity<List<ProductDetail>> createProductDetail(List<ProductDetail> productDetails) {
         try {
@@ -82,6 +90,17 @@ public class SaleService {
         }
     }
 
+    public ResponseEntity<List<SaleResponse>> findByDate(SalesDatesDTO datesDTO){
+        try {
+            List<SaleResponse> sales = saleRepository.findByDate(datesDTO.date1(), datesDTO.date2());
+            return ResponseEntity.ok(sales);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
     public ResponseEntity<Sale> updateSale(int id, Sale sale){
         Sale saleFound = saleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cat not found"));
@@ -91,4 +110,43 @@ public class SaleService {
         saleRepository.save(saleFound);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    public ResponseEntity<List<SaleByParamsDTO>> findByParams(SaleParmasDTO params){
+        String query = "SELECT pro.description, cat.name AS \"category\", pro.entry_sale as \"price\", pd.product_amount as \"amount\", pd.subtotal as \"subtotal\", sa.create_at AS \"date\"\n" +
+                "FROM sales AS sa \n" +
+                "\tJOIN products_detail AS pd ON sa.id = pd.sale_id\n" +
+                "\tJOIN products AS pro ON pd.product_id = pro.id\n" +
+                "\tJOIN categories_product AS cat ON pro.category_id = cat.id\n" +
+                " WHERE pro.description ILIKE '%%'";
+
+        if(params.category() != null){
+            query +=" AND cat.name = '"+params.category()+"'";
+        }
+        if(params.subtotalMin() > 0 && params.subtotalMax() > 0){
+            query +=" AND pro.entry_price BETWEEN " + params.subtotalMin()+" AND "+params.subtotalMax();
+        }
+        if(params.dateFrom() != null && params.dateTo() != null){
+            query +=" AND sa.create_at BETWEEN '"+ params.dateFrom()+" 00:00:00' AND '"+params.dateTo()+" 23:59:59'";
+        }
+        if(params.property() != null){
+            query += " ORDER BY "+params.property();
+
+            if(params.order() != null){
+                query += " "+params.order();
+            }
+        }
+
+        List<SaleByParamsDTO> list =  jdbcTemplate.query(query, (rs ,rw)->
+                new SaleByParamsDTO(
+                        rs.getString("description"),
+                        rs.getInt("amount"),
+                        rs.getString("category"),
+                        rs.getInt("price"),
+                        rs.getDate("date"),
+                        rs.getInt("subtotal")
+                )
+        );
+        return ResponseEntity.ok(list);
+    }
+
 }

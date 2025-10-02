@@ -1,10 +1,12 @@
 package my.project.services;
 
+import my.project.dto.params.TypeSupportParamsDTO;
 import my.project.entities.transaction.TypeSupport;
 import my.project.repository.jpa.TypeSupportRepository;
 import my.project.services.Interface.InAbmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -16,6 +18,9 @@ public class TypeSupportService implements InAbmService<TypeSupport, Integer> {
 
     @Autowired
     private TypeSupportRepository typeSupportRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
 
     public ResponseEntity<TypeSupport> create(TypeSupport entity) {
         TypeSupport typeSupport = typeSupportRepository.save(entity);
@@ -59,5 +64,39 @@ public class TypeSupportService implements InAbmService<TypeSupport, Integer> {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ResponseEntity<List<TypeSupport>> findByParams(TypeSupportParamsDTO params){
+        String query= "SELECT ts.id, ts.description, ts.amount, cat.id AS \"catId\", cat.name AS \"catName\"" +
+                "FROM types_support AS ts JOIN categories_device AS cat ON ts.catdevice = cat.id\n" +
+                "WHERE ts.description ILIKE '%%'";
+
+        if(params.category() != null){
+            query +=" AND cat.name = '"+params.category()+"'";
+        }
+        if(params.amountMin() > 0 && params.amountMax() > 0){
+            query +=" AND ts.amount BETWEEN " + params.amountMin()+" AND "+params.amountMax();
+        }
+        if(params.property() != null){
+            query += " ORDER BY "+params.property();
+
+            if(params.order() != null){
+                query += " "+params.order();
+            }
+        }
+
+        List<TypeSupport> typeSupportList = jdbcTemplate.query(query, (rs, row) ->
+                new TypeSupport.Builder()
+                        .id(rs.getInt("id"))
+                        .description(rs.getString("description"))
+                        .amount(rs.getDouble("amount"))
+                        .categoryDevice(
+                                rs.getInt("catId"),
+                                rs.getString("catName")
+                        )
+                        .build()
+        );
+
+        return ResponseEntity.ok(typeSupportList);
     }
 }

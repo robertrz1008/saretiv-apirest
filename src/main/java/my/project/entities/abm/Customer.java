@@ -14,7 +14,6 @@ public class Customer extends Person{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     private String address;
     @ColumnDefault("true")
     private Boolean status;

@@ -1,5 +1,7 @@
 package my.project.services;
 
+import my.project.dto.params.SupportParamsDTO;
+import my.project.dto.supportCustomDTO.SupportByParamsResponseDTO;
 import my.project.dto.supportCustomDTO.SupportDTO;
 import my.project.dto.supportCustomDTO.SupportRequestDTO;
 import my.project.entities.abm.Customer;
@@ -11,6 +13,7 @@ import my.project.repository.jpa.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +30,8 @@ public class SupportService{
     private CustomerRepository customerRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     public ResponseEntity<Support> create(SupportRequestDTO entity) {
         Customer customer = customerRepository.findById(entity.customerId())
@@ -59,6 +64,59 @@ public class SupportService{
         List<SupportDTO> supportList = supportRepository.findAllCustomized();
 
         return ResponseEntity.ok(supportList);
+    }
+
+    public ResponseEntity<List<SupportByParamsResponseDTO>> findByParams(SupportParamsDTO params){
+        String query = "SELECT \n" +
+                "\tsup.id as \"id\", \n" +
+                "\tusers.name || '' || users.lastname as \"user\", users.id as \"userId\", \n" +
+                "\tdev.description AS \"devDescription\", dev.observation ,dev.id AS \"categoryDevId\", dev.id as \"devId\", cat.name AS \"categoryDev\", \n" +
+                "\tcus.name || ' ' || cus.lastname AS \"customer\", cus.id AS \"customerId\", cus.document AS \"cedula\",\n" +
+                "\tsup.start_date AS \"startDate\", sup.end_date AS \"endDate\",sup.total AS \"total\", sup.status AS \"status\"\n" +
+                "FROM supports  AS sup JOIN devices AS dev ON sup.id = dev.support_id\n" +
+                "JOIN users ON sup.user_id = users.id\n" +
+                "JOIN categories_device AS cat ON dev.catdevice_id = cat.id\n" +
+                "JOIN customers AS cus ON sup.customer_id = cus.id WHERE sup.status = 'FINALIZADO' ";
+
+        if(params.customerId() != null){
+            query +=" AND cus.id ="+params.customerId();
+        }
+        if(params.technicalId() != null){
+            query +=" AND users.id = "+params.technicalId();
+        }
+        if(params.categoryId() != null){
+            query +=" AND cat.id = "+params.categoryId();
+        }
+        if(params.totalMin() > 0 && params.totalMax() > 0){
+            query +=" AND sup.total BETWEEN " + params.totalMin()+" AND "+params.totalMax();
+        }
+        if(params.dateFrom() != null && params.dateTo() != null){
+            query +=" AND sup.start_date BETWEEN '"+ params.dateFrom()+" 00:00:00' AND '"+params.dateTo()+" 23:59:59'";
+        }
+        if(params.property() != null){
+            query += " ORDER BY "+params.property();
+
+            if(params.order() != null){
+                query += " "+params.order();
+            }
+        }
+
+
+        List<SupportByParamsResponseDTO> list = jdbcTemplate.query(query, (rs, row) ->
+                new SupportByParamsResponseDTO(
+                        rs.getInt("id"),
+                        rs.getString("devDescription"),
+                        rs.getString("categoryDev"),
+                        rs.getString("customer"),
+                        rs.getString("cedula"),
+                        rs.getDate("startDate"),
+                        rs.getDate("endDate"),
+                        rs.getLong("total"),
+                        rs.getString("status"),
+                        rs.getString("user")
+                        )
+        );
+        return ResponseEntity.ok(list);
     }
 
     public ResponseEntity<SupportDTO> findCustomizedById(int id){

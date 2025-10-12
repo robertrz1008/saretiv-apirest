@@ -7,10 +7,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EnterpriseService {
     @Autowired
     private EnterpriseRepository enterpriseRepository;
+
+    public ResponseEntity<List<Enterprise>> findAll(){
+        try {
+            List<Enterprise> list = enterpriseRepository.findAll();
+
+            return ResponseEntity.ok(list);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public ResponseEntity<Enterprise> save(Enterprise enterprise){
         try {
@@ -20,9 +32,10 @@ public class EnterpriseService {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
-    public ResponseEntity<Enterprise> save(int id, Enterprise enterprise){
+    public ResponseEntity<Enterprise> update(int id, Enterprise enterprise){
         Enterprise enterpriseFound = enterpriseRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("not found"));
+
         enterpriseFound.setName(enterprise.getName());
         enterpriseFound.setDirection(enterprise.getDirection());
         enterpriseFound.setTelephone(enterprise.getTelephone());

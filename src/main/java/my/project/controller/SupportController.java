@@ -1,5 +1,7 @@
 package my.project.controller;
 
+import my.project.dto.params.SupportParamsDTO;
+import my.project.dto.supportCustomDTO.SupportByParamsResponseDTO;
 import my.project.dto.supportCustomDTO.SupportDTO;
 import my.project.dto.supportCustomDTO.SupportRequestDTO;
 import my.project.entities.transaction.Support;
@@ -46,6 +48,11 @@ public class SupportController{
     @PutMapping("/{id}")
     public ResponseEntity<Support> update(@PathVariable Integer id, @RequestBody SupportRequestDTO entity) {
         return supportService.update(id, entity);
+    }
+
+    @PostMapping("/params")
+    public ResponseEntity<List<SupportByParamsResponseDTO>> findByParams(@RequestBody SupportParamsDTO params){
+        return supportService.findByParams(params);
     }
 
     @GetMapping("/custom/{id}")

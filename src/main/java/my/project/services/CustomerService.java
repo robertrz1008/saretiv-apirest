@@ -1,18 +1,31 @@
 package my.project.services;
 
+import my.project.dto.abm.CustomerForReportDTO;
 import my.project.dto.params.CustomerParamsDTO;
 import my.project.dto.params.UserParamsDTO;
 import my.project.entities.abm.Customer;
+import my.project.entities.abm.Enterprise;
 import my.project.repository.jpa.CustomerRepository;
+import my.project.repository.jpa.EnterpriseRepository;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.Comparator;
-import java.util.List;
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +35,9 @@ public class CustomerService{
     private CustomerRepository customerRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private EnterpriseRepository enterpriseRepository;
+
 
     public ResponseEntity<Customer> create(Customer entity) {
         return new ResponseEntity<>(customerRepository.save(entity), HttpStatus.CREATED);
@@ -87,5 +103,41 @@ public class CustomerService{
             return customer;
         });
         return ResponseEntity.ok(userResponse);
+    }
+
+    public byte[] report(List<Customer> customerList) throws JRException {
+
+
+        List<my.project.entities.report.Customer> newList = customerList.stream().map(cus -> new my.project.entities.report.Customer(
+                cus.getId(),
+                cus.getName() + " " + cus.getLastname(),
+                cus.getTelephone(),
+                cus.getDocument(),
+                cus.getAddress(),
+                cus.getStatus() ? "ACTIVO" : "INACTIVO"
+        )).collect(Collectors.toList());
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newList);
+        InputStream reportStream = this.getClass().getResourceAsStream("/reports/Users_report.jasper");
+
+        List<Enterprise> enterprise = enterpriseRepository.findAll();
+
+        if(enterprise.isEmpty()) {
+            throw new RuntimeException("enterprise void");
+        }
+
+        //getting today date
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("enterprise", enterprise.get(0).getName());
+        params.put("telephone", enterprise.get(0).getTelephone());
+        params.put("address", enterprise.get(0).getDirection());
+        params.put("today", formatter.format(localDateTime));
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, params, dataSource);
+
+        return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 }

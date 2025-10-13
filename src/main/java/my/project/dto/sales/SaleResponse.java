@@ -3,6 +3,7 @@ package my.project.dto.sales;
 import java.util.Date;
 
 public interface SaleResponse {
+    Integer getId();
     String getDescription();
     String getCategory();
     Integer getAmount();

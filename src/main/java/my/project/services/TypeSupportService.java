@@ -1,16 +1,29 @@
 package my.project.services;
 
 import my.project.dto.params.TypeSupportParamsDTO;
+import my.project.entities.abm.Enterprise;
+import my.project.entities.report.SupportTypeReport;
 import my.project.entities.transaction.TypeSupport;
+import my.project.repository.jpa.EnterpriseRepository;
 import my.project.repository.jpa.TypeSupportRepository;
 import my.project.services.Interface.InAbmService;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +33,8 @@ public class TypeSupportService implements InAbmService<TypeSupport, Integer> {
     private TypeSupportRepository typeSupportRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private EnterpriseRepository enterpriseRepository;
 
 
     public ResponseEntity<TypeSupport> create(TypeSupport entity) {
@@ -98,5 +113,38 @@ public class TypeSupportService implements InAbmService<TypeSupport, Integer> {
         );
 
         return ResponseEntity.ok(typeSupportList);
+    }
+
+    public byte[] report(List<TypeSupport> supports) throws JRException {
+        List<SupportTypeReport> newList = supports.stream().map(ts ->
+            new SupportTypeReport(
+                    ts.getId(),
+                    ts.getDescription(),
+                    ts.getAmount(),
+                    ts.getCategory().getName()
+            )
+        ).collect(Collectors.toList());
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newList);
+        InputStream reportStream = this.getClass().getResourceAsStream("/reports/supportTypes_report.jasper");
+
+        List<Enterprise> enterprise = enterpriseRepository.findAll();
+
+        if(enterprise.isEmpty()) {
+            throw new RuntimeException("enterprise void");
+        }
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("enterprise", enterprise.get(0).getName());
+        params.put("telephone", enterprise.get(0).getTelephone());
+        params.put("address", enterprise.get(0).getDirection());
+        params.put("today", formatter.format(localDateTime));
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, params, dataSource);
+
+        return JasperExportManager.exportReportToPdf(jasperPrint);
+
     }
 }

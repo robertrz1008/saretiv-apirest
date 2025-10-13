@@ -4,13 +4,18 @@ import my.project.dto.params.SupportParamsDTO;
 import my.project.dto.supportCustomDTO.SupportByParamsResponseDTO;
 import my.project.dto.supportCustomDTO.SupportDTO;
 import my.project.dto.supportCustomDTO.SupportRequestDTO;
+import my.project.entities.abm.Product;
 import my.project.entities.transaction.Support;
 import my.project.security.AuthController;
 import my.project.services.Interface.InAbmService;
 import my.project.services.SupportService;
+import net.sf.jasperreports.engine.JRException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -72,6 +77,20 @@ public class SupportController{
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return supportService.delete(id);
+    }
+
+    @PostMapping("/report")
+    public ResponseEntity<byte[]> report(@RequestBody List<SupportByParamsResponseDTO> list){
+        try {
+            byte[] report = supportService.report(list);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+            return new ResponseEntity<>(report, headers, HttpStatus.OK);
+        } catch (JRException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

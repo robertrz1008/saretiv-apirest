@@ -6,21 +6,27 @@ public class ProductReport {
     private String description;
     private String category;
     private String supplier;
+    private int stock;
     private double priceBuy;
     private double priceSale;
 
-    public ProductReport(int id, String barcode, String description, String category, String supplier, double priceBuy, double priceSale) {
+    public ProductReport(int id, String barcode, String description, String category, String supplier, int stock,double priceBuy, double priceSale) {
         this.id = id;
         this.barcode = barcode;
         this.description = description;
         this.category = category;
         this.supplier = supplier;
+        this.stock = stock;
         this.priceBuy = priceBuy;
         this.priceSale = priceSale;
     }
 
     public int getId() {
         return id;
+    }
+
+    public int getStock() {
+        return stock;
     }
 
     public String getBarcode() {

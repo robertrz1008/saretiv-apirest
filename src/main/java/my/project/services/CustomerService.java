@@ -112,8 +112,8 @@ public class CustomerService{
                 cus.getId(),
                 cus.getName() + " " + cus.getLastname(),
                 cus.getTelephone(),
-                cus.getDocument(),
                 cus.getAddress(),
+                cus.getDocument(),
                 cus.getStatus() ? "ACTIVO" : "INACTIVO"
         )).collect(Collectors.toList());
 

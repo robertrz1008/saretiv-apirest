@@ -5,7 +5,11 @@ import my.project.entities.abm.Product;
 import my.project.repository.jpa.ProductRepository;
 import my.project.services.Interface.InAbmService;
 import my.project.services.ProductService;
+import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,6 +61,19 @@ public class ProductController implements InAbmService<Product, Integer> {
     @PostMapping("/params")
     public ResponseEntity<List<Product>> findByParams(@RequestBody ProductParamsDTO proParams){
         return productService.findByParams(proParams);
+    }
+    @PostMapping("/report")
+    public ResponseEntity<byte[]> report(@RequestBody List<Product> list){
+        try {
+            byte[] report = productService.report(list);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+            return new ResponseEntity<>(report, headers, HttpStatus.OK);
+        } catch (JRException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -5,11 +5,19 @@ import my.project.dto.supportCustomDTO.SupportByParamsResponseDTO;
 import my.project.dto.supportCustomDTO.SupportDTO;
 import my.project.dto.supportCustomDTO.SupportRequestDTO;
 import my.project.entities.abm.Customer;
+import my.project.entities.abm.Enterprise;
 import my.project.entities.abm.UserEntity;
+import my.project.entities.report.SupportReport;
 import my.project.entities.transaction.Support;
 import my.project.repository.jpa.CustomerRepository;
+import my.project.repository.jpa.EnterpriseRepository;
 import my.project.repository.jpa.SupportRepository;
 import my.project.repository.jpa.UserRepository;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +25,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class SupportService{
@@ -32,6 +41,8 @@ public class SupportService{
     private UserRepository userRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private EnterpriseRepository enterpriseRepository;
 
     public ResponseEntity<Support> create(SupportRequestDTO entity) {
         Customer customer = customerRepository.findById(entity.customerId())
@@ -185,5 +196,48 @@ public class SupportService{
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public byte[] report(List<SupportByParamsResponseDTO> supports) throws JRException {
+        List<SupportReport> newList = supports.stream().map(sup ->{
+            return new SupportReport(
+                    sup.id(),
+                    sup.customer(),
+                    sup.description(),
+                    sup.categoryDev(),
+                    sup.user(),
+                    sup.startDate(),
+                    sup.endDate(),
+                    sup.total()
+            );
+        }).toList();
+
+        double supportsTotal = newList.stream()
+                .mapToDouble(el -> el.getAmount())
+                .sum();
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newList);
+        InputStream reportStream = this.getClass().getResourceAsStream("/reports/supports_report.jasper");
+
+        List<Enterprise> enterprise = enterpriseRepository.findAll();
+
+        if(enterprise.isEmpty()) {
+            throw new RuntimeException("enterprise void");
+        }
+
+        //getting today date
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("enterprise", enterprise.get(0).getName());
+        params.put("telephone", enterprise.get(0).getTelephone());
+        params.put("address", enterprise.get(0).getDirection());
+        params.put("total", supportsTotal);
+        params.put("today", formatter.format(localDateTime));
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, params, dataSource);
+
+        return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 }

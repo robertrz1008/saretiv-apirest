@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface SaleRepository extends JpaRepository<Sale, Integer> {
 
-    @Query(value = "SELECT pro.description, cat.name AS \"category\", pro.entry_sale as \"price\", pd.product_amount as \"amount\", pd.subtotal as \"subtotal\", sa.create_at AS \"date\"\n" +
+    @Query(value = "SELECT sa.id AS \"id\", pro.description, cat.name AS \"category\", pro.entry_sale as \"price\", pd.product_amount as \"amount\", pd.subtotal as \"subtotal\", sa.create_at AS \"date\"\n" +
             "FROM sales AS sa \n" +
             "\tJOIN products_detail AS pd ON sa.id = pd.sale_id\n" +
             "\tJOIN products AS pro ON pd.product_id = pro.id\n" +

@@ -5,11 +5,16 @@ import my.project.dto.sales.SaleParmasDTO;
 import my.project.dto.sales.SaleResponse;
 import my.project.dto.sales.SalesDatesDTO;
 import my.project.dto.supportCustomDTO.ProductDetailResponse;
+import my.project.entities.abm.Product;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
 import my.project.repository.jpa.ProductDetailRepository;
 import my.project.services.SaleService;
+import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -89,4 +94,17 @@ public class SaleController {
         return saleservice.findByParams(saleParmas);
     }
 
+    @PostMapping("/report")
+    public ResponseEntity<byte[]> report(@RequestBody List<SaleByParamsDTO> list) {
+        try {
+            byte[] report = saleservice.report(list);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+            return new ResponseEntity<>(report, headers, HttpStatus.OK);
+        } catch (JRException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -4,18 +4,34 @@ import my.project.dto.sales.SaleByParamsDTO;
 import my.project.dto.sales.SaleParmasDTO;
 import my.project.dto.sales.SaleResponse;
 import my.project.dto.sales.SalesDatesDTO;
+import my.project.entities.abm.Enterprise;
+import my.project.entities.report.ProductReport;
+import my.project.entities.report.SaleReport;
 import my.project.entities.transaction.ProductDetail;
 import my.project.entities.transaction.Sale;
+import my.project.repository.jpa.EnterpriseRepository;
 import my.project.repository.jpa.ProductDetailRepository;
 import my.project.repository.jpa.SaleRepository;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SaleService {
@@ -25,6 +41,8 @@ public class SaleService {
     private ProductDetailRepository productDetailRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private EnterpriseRepository enterpriseRepository;
 
     public ResponseEntity<List<ProductDetail>> createProductDetail(List<ProductDetail> productDetails) {
         try {
@@ -112,7 +130,7 @@ public class SaleService {
     }
 
     public ResponseEntity<List<SaleByParamsDTO>> findByParams(SaleParmasDTO params){
-        String query = "SELECT pro.description, cat.name AS \"category\", pro.entry_sale as \"price\", pd.product_amount as \"amount\", pd.subtotal as \"subtotal\", sa.create_at AS \"date\"\n" +
+        String query = "SELECT sa.id AS \"id\", pro.description, cat.name AS \"category\", pro.entry_sale as \"price\", pd.product_amount as \"amount\", pd.subtotal as \"subtotal\", sa.create_at AS \"date\"\n" +
                 "FROM sales AS sa \n" +
                 "\tJOIN products_detail AS pd ON sa.id = pd.sale_id\n" +
                 "\tJOIN products AS pro ON pd.product_id = pro.id\n" +
@@ -138,6 +156,7 @@ public class SaleService {
 
         List<SaleByParamsDTO> list =  jdbcTemplate.query(query, (rs ,rw)->
                 new SaleByParamsDTO(
+                        rs.getInt("id"),
                         rs.getString("description"),
                         rs.getInt("amount"),
                         rs.getString("category"),
@@ -147,6 +166,49 @@ public class SaleService {
                 )
         );
         return ResponseEntity.ok(list);
+    }
+
+    public byte[] report(List<SaleByParamsDTO> sales) throws JRException {
+
+        List<SaleReport> newList = sales.stream().map(sa ->{
+            SaleReport sale = new SaleReport(
+                    sa.id(),
+                    sa.description(),
+                    sa.amount(),
+                    sa.category(),
+                    sa.date(),
+                    sa.price(),
+                    sa.subtotal()
+            );
+            return sale;
+        }).collect(Collectors.toList());
+
+        double salesTotal = newList.stream()
+                .mapToDouble(sa -> sa.getSubtotal())
+                .sum();
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newList);
+        InputStream reportStream = this.getClass().getResourceAsStream("/reports/sales_report.jasper");
+
+        List<Enterprise> enterprise = enterpriseRepository.findAll();
+
+        if(enterprise.isEmpty()) {
+            throw new RuntimeException("enterprise void");
+        }
+        //getting today date
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("enterprise", enterprise.get(0).getName());
+        params.put("telephone", enterprise.get(0).getTelephone());
+        params.put("address", enterprise.get(0).getDirection());
+        params.put("total", salesTotal);
+        params.put("today", formatter.format(localDateTime));
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, params, dataSource);
+
+        return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 
 }

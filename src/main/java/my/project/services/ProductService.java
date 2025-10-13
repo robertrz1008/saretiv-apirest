@@ -1,11 +1,19 @@
 package my.project.services;
 
 import my.project.dto.params.ProductParamsDTO;
+import my.project.entities.abm.Enterprise;
 import my.project.entities.abm.Product;
+import my.project.entities.report.ProductReport;
 import my.project.repository.jdbc.ExampleRepository;
+import my.project.repository.jpa.EnterpriseRepository;
 import my.project.repository.jpa.ProductRepository;
 import my.project.security.AuthController;
 import my.project.services.Interface.InAbmService;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +22,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,10 +41,11 @@ public class ProductService implements InAbmService<Product, Integer> {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+    private EnterpriseRepository enterpriseRepository;
+
+    @Autowired
     private ExampleRepository exampleRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
-
-
 
 
 
@@ -155,6 +169,43 @@ public class ProductService implements InAbmService<Product, Integer> {
                     .build()
         );
         return ResponseEntity.ok(productResponse);
+    }
+
+    public byte[] report(List<Product> products) throws JRException {
+        List<ProductReport> productsToReport = products.stream().map( product ->
+            new ProductReport(
+                    product.getId(),
+                    product.getBarcode(),
+                    product.getDescription(),
+                    product.getCategory().getName(),
+                    product.getSupplier().getName(),
+                    product.getStock(),
+                    product.getEntryPrice(),
+                    product.getSalePrice()
+            )
+        ).collect(Collectors.toList());
+
+        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(productsToReport);
+        InputStream reportStream = this.getClass().getResourceAsStream("/reports/products_report.jasper");
+
+        List<Enterprise> enterprise = enterpriseRepository.findAll();
+
+        if(enterprise.isEmpty()) {
+            throw new RuntimeException("enterprise void");
+        }
+        //getting today date
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("enterprise", enterprise.get(0).getName());
+        params.put("telephone", enterprise.get(0).getTelephone());
+        params.put("address", enterprise.get(0).getDirection());
+        params.put("today", formatter.format(localDateTime));
+
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, params, dataSource);
+
+        return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 
 }

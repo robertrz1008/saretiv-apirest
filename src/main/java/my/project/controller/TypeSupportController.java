@@ -1,11 +1,20 @@
 package my.project.controller;
 
 import my.project.dto.params.TypeSupportParamsDTO;
+import my.project.entities.abm.Product;
+import my.project.entities.report.SupportTypeReport;
 import my.project.entities.transaction.Device;
 import my.project.entities.transaction.TypeSupport;
 import my.project.services.Interface.InAbmService;
+import my.project.services.ProductService;
 import my.project.services.TypeSupportService;
+import net.sf.jasperreports.engine.JRException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +57,19 @@ public class TypeSupportController implements InAbmService<TypeSupport, Integer>
     @PostMapping("/params")
     public ResponseEntity<List<TypeSupport>> findByParams(@RequestBody TypeSupportParamsDTO paramsDTO){
         return typeSupportService.findByParams(paramsDTO);
+    }
+
+    @PostMapping("/report")
+    public ResponseEntity<byte[]> report(@RequestBody List<TypeSupport> list){
+        try {
+            byte[] report = typeSupportService.report(list);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "inline; filename=report.pdf");
+
+            return new ResponseEntity<>(report, headers, HttpStatus.OK);
+        } catch (JRException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

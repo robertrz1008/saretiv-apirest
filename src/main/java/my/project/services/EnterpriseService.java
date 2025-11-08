@@ -1,5 +1,6 @@
 package my.project.services;
 
+import my.project.dto.sales.RevenuesResponse;
 import my.project.entities.abm.Enterprise;
 import my.project.repository.jpa.EnterpriseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,15 @@ public class EnterpriseService {
         enterpriseFound.setDirection(enterprise.getDirection());
         enterpriseFound.setTelephone(enterprise.getTelephone());
 
-        return new ResponseEntity<>(enterpriseRepository.save(enterprise), HttpStatus.OK);
+        return new ResponseEntity<>(enterpriseRepository.save(enterpriseFound), HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<RevenuesResponse>> revenues(){
+        try {
+            List<RevenuesResponse> response = enterpriseRepository.revenues();
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

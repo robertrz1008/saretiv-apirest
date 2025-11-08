@@ -19,8 +19,6 @@ public class CookieUtil {
         String cookieHeader = String.format("%s=%s; Path=%s; HttpOnly; SameSite=Lax; Max-Age=%s;",name, value, "/", expiry);
         response.addHeader("Set-Cookie", cookieHeader);
 //        response.addCookie(cookie);
-
-
     }
     public static void deleteCookie(HttpServletResponse response, String name) {
         Cookie cookie = new Cookie(name, null);

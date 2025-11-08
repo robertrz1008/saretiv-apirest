@@ -7,11 +7,14 @@ import my.project.dto.auth.AuthResponse;
 import my.project.dto.auth.LoginRequest;
 import my.project.dto.auth.RegisterRequest;
 import my.project.dto.params.UserParamsDTO;
+import my.project.entities.abm.Role;
 import my.project.entities.abm.UserEntity;
+import my.project.repository.jpa.RoleRepository;
 import my.project.repository.jpa.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +32,8 @@ public class AuthController {
     private UserDetailServiceImpl userDetailService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
 
     public AuthController(AuthenticationManager authenticationManager) {
@@ -46,6 +51,7 @@ public class AuthController {
         ResponseEntity<?> response = userDetailService.register(user);
         return response;
     }
+
 
     @PostMapping("/logIn")
     public ResponseEntity<AuthResponse> logIn(@RequestBody @Valid LoginRequest user, HttpServletResponse response){
@@ -66,10 +72,12 @@ public class AuthController {
     public ResponseEntity<String> logOut(HttpServletResponse response){
         return userDetailService.logOut(response);
     }
+
     @GetMapping("/users/list")
     public ResponseEntity<List<UserEntity>> UsersList(){
         return userDetailService.usersList();
     }
+
     @DeleteMapping("/userrole/{id}")
     public ResponseEntity<?> deleteUserRoleByUser(@PathVariable int id){
         return userDetailService.deleteUserRoleByUser(id);
@@ -96,6 +104,26 @@ public class AuthController {
     @PostMapping("/params")
     public ResponseEntity<List<UserEntity>> findByParams(@RequestBody UserParamsDTO userParams){
         return userDetailService.findByParams(userParams);
+    }
+
+    @GetMapping("/roleList")
+    public ResponseEntity<List<Role>> findAll(){
+        List<Role> response = roleRepository.findAll();
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/createRoleAuto")
+    public ResponseEntity<?> create(){
+
+        List<Role> roles = List.of(new Role("ADMINISTRADOR"), new Role("TECNICO"), new Role("VENDEDOR"));
+        try {
+            roleRepository.saveAll(roles);
+            return ResponseEntity.ok("ok");
+        } catch (Exception e) {
+            new RuntimeException(e);
+
+            return new ResponseEntity<>(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

@@ -31,6 +31,7 @@ public class TypeSupportService implements InAbmService<TypeSupport, Integer> {
 
     @Autowired
     private TypeSupportRepository typeSupportRepository;
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired

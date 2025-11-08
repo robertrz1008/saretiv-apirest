@@ -86,8 +86,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
         return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
     }
 
-
-
     public ResponseEntity<AuthResponse> login(LoginRequest loginRequest, HttpServletResponse response){
         log.info("Usuario iniciando session");
         AuthResponse authResponse;
@@ -99,7 +97,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
             String accessToken;
             SecurityContextHolder.getContext().setAuthentication(authentication);
             accessToken = jwtUtils.createToken(authentication);
-            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, (3600*24));
+            CookieUtil.createCookie(response, "JWT_TOKEN", accessToken, (3600 * 24));
 
             authResponse = new AuthResponse(loginRequest.username(), "Welcome to this web service!", accessToken, true);
             log.info("el usuario: "+loginRequest.username()+" ha iniciado session");
@@ -139,7 +137,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
 
 //  crud
-
     public ResponseEntity<List<UserEntity>> usersList(){
         List<UserEntity> usersFound = userRepository.findAll().stream()
                 .sorted(Comparator.comparing(e -> e.getId()))

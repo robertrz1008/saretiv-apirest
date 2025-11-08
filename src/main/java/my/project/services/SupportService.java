@@ -1,6 +1,7 @@
 package my.project.services;
 
 import my.project.dto.params.SupportParamsDTO;
+import my.project.dto.supportCustomDTO.DevicesAmountByCategory;
 import my.project.dto.supportCustomDTO.SupportByParamsResponseDTO;
 import my.project.dto.supportCustomDTO.SupportDTO;
 import my.project.dto.supportCustomDTO.SupportRequestDTO;
@@ -18,6 +19,7 @@ import net.sf.jasperreports.engine.JasperExportManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +75,13 @@ public class SupportService{
 
     public ResponseEntity<List<SupportDTO>> findAllCustomized() {
         List<SupportDTO> supportList = supportRepository.findAllCustomized();
+
+        return ResponseEntity.ok(supportList);
+    }
+
+
+    public ResponseEntity<List<SupportDTO>> findAllCustomizedByFilter(String filter) {
+        List<SupportDTO> supportList = supportRepository.findAllCustomizedByFilter(filter);
 
         return ResponseEntity.ok(supportList);
     }
@@ -239,5 +248,15 @@ public class SupportService{
         JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, params, dataSource);
 
         return JasperExportManager.exportReportToPdf(jasperPrint);
+    }
+
+    public ResponseEntity<List<DevicesAmountByCategory>> deviceAmount(){
+        try {
+            List<DevicesAmountByCategory> response = supportRepository.deviceAmount();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

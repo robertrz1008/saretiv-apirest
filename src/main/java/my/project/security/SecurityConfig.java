@@ -39,7 +39,7 @@ public class SecurityConfig {
         http.csrf( csft -> csft.disable())
                 .authorizeHttpRequests((authorized) -> authorized
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/api/**").hasAnyRole("ADMINISTRADOR", "VENDEDOR", "TECNICO")
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(request -> {

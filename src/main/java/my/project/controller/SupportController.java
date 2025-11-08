@@ -1,6 +1,7 @@
 package my.project.controller;
 
 import my.project.dto.params.SupportParamsDTO;
+import my.project.dto.supportCustomDTO.DevicesAmountByCategory;
 import my.project.dto.supportCustomDTO.SupportByParamsResponseDTO;
 import my.project.dto.supportCustomDTO.SupportDTO;
 import my.project.dto.supportCustomDTO.SupportRequestDTO;
@@ -45,9 +46,16 @@ public class SupportController{
     public ResponseEntity<Optional<Support>> findById(@PathVariable Integer id) {
         return supportService.findById(id);
     }
+
     @GetMapping("/custom")
     public ResponseEntity<List<SupportDTO>> findAllCustomized() {
         return supportService.findAllCustomized();
+    }
+
+
+    @GetMapping("/custom/filter/{filter}")
+    public ResponseEntity<List<SupportDTO>> findAllCustomizedByFilter(@PathVariable("filter") String fil) {
+        return supportService.findAllCustomizedByFilter(fil);
     }
 
     @PutMapping("/{id}")
@@ -64,6 +72,11 @@ public class SupportController{
     public ResponseEntity<SupportDTO> findCustomizedById(@PathVariable int id){
         return supportService.findCustomizedById(id);
     }
+    @GetMapping("/deviceAmount")
+    public ResponseEntity<List<DevicesAmountByCategory>> devicesAmount(){
+        return supportService.deviceAmount();
+    }
+
     @PutMapping("/status/{status}/{id}")
     public ResponseEntity<Support> updateStatus(@PathVariable("id") Integer id, @PathVariable("status") String entity) {
         return supportService.updateStatus(id, entity);

@@ -1,5 +1,6 @@
 package my.project.controller;
 
+import my.project.dto.sales.RevenuesResponse;
 import my.project.entities.abm.Enterprise;
 import my.project.services.EnterpriseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,16 @@ public class EnterpriseController {
         return enterpriseService.findAll();
     }
 
+    @GetMapping("/revenues")
+    public ResponseEntity<List<RevenuesResponse>> revenues(){
+        return enterpriseService.revenues();
+    }
+
     @PostMapping
     private ResponseEntity<Enterprise> save(@RequestBody Enterprise enterprise){
         return enterpriseService.save(enterprise);
     }
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     private ResponseEntity<Enterprise> update(@PathVariable int id, @RequestBody Enterprise enterprise){
         return enterpriseService.update(id, enterprise);
     }

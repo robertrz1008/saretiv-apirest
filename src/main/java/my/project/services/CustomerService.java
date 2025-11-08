@@ -64,6 +64,23 @@ public class CustomerService{
         return new ResponseEntity<>(customerRepository.save(customerFound), HttpStatus.OK);
     }
 
+    public ResponseEntity<Customer> updateStatus(int id, boolean status) {
+        Customer customerFound = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("not found"));
+
+        customerFound.setStatus(status);
+
+        try {
+            Customer res = customerRepository.save(customerFound);
+            return new ResponseEntity<>(res, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+
     public ResponseEntity<String> delete(Integer id) {
         try {
             customerRepository.deleteById(id);

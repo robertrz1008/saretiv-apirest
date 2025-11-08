@@ -44,6 +44,11 @@ public class CustomerController {
         return customerService.update(doc, entity);
     }
 
+    @PutMapping("/status/{id}")
+    public ResponseEntity<Customer> update(@PathVariable("id") int doc, @RequestBody Customer cus) {
+        return customerService.updateStatus(doc, cus.getStatus());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return customerService.delete(id);
@@ -53,6 +58,7 @@ public class CustomerController {
     public ResponseEntity<List<Customer>> findByFilter(@PathVariable String filter){
         return customerService.findByFilter(filter);
     }
+
     @PostMapping("/params")
     public ResponseEntity<List<Customer>> findByParams(@RequestBody CustomerParamsDTO customerParams){
         return customerService.findyParams(customerParams);
